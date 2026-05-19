@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLADIEX Admin — Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Supabase JS SDK (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body class="login-page">
+
+  <div class="login-wrapper">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <img src="../Recursos graficos/logo/LOGO HORIZONTAL COLOR.webp" alt="PLADIEX"
+        onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'" />
+      <span id="logo-text" style="display:none" class="logo-fallback">PLADIEX</span>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card">
+      <h1 class="login-title">Panel Administrativo</h1>
+      <p class="login-subtitle">Acceso exclusivo para administradores</p>
+
+      <form id="login-form" novalidate>
+
+        <div class="field-group">
+          <label for="email" class="field-label">Correo electrónico</label>
+          <input type="email" id="email" name="email" class="field-input" placeholder="admin@pladiex.com" required
+            autocomplete="email" />
+        </div>
+
+        <div class="field-group">
+          <label for="password" class="field-label">Contraseña</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" class="field-input" placeholder="••••••••" required
+              autocomplete="current-password" />
+            <button type="button" class="toggle-pwd" id="toggle-pwd" aria-label="Mostrar contraseña">
+              <!-- ojo abierto -->
+              <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <!-- ojo cerrado (oculto por defecto) -->
+              <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">
+          <span id="btn-text">Iniciar sesión</span>
+          <span id="btn-spinner" class="spinner" style="display:none"></span>
+        </button>
+
+      </form>
+    </div>
+
+    <p class="login-note">Solo cuentas autorizadas pueden acceder a este panel.</p>
+
+  </div>
+
+  <script>
+    // ── Configuración Supabase ─────────────────────────────────────────────
+    // Reemplaza estos valores con los de tu proyecto en app.supabase.com
+    const SUPABASE_URL = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dmFqdmhqY3Z6cXNlanJjcXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIxMDUsImV4cCI6MjA5NDc2ODEwNX0.BZeVhHfC7T8X0sAAA9xILGA39Q8iKbZG3SZE2q7HOrw';
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── Redirigir si ya hay sesión activa ──────────────────────────────────
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) window.location.href = 'dashboard.html';
+    })();
+
+    // ── Toggle mostrar/ocultar contraseña ──────────────────────────────────
+    document.getElementById('toggle-pwd').addEventListener('click', () => {
+      const input = document.getElementById('password');
+      const eyeOpen = document.getElementById('eye-open');
+      const eyeClosed = document.getElementById('eye-closed');
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      eyeOpen.style.display = isHidden ? 'none' : 'block';
+      eyeClosed.style.display = isHidden ? 'block' : 'none';
+    });
+
+    // ── Formulario de login ────────────────────────────────────────────────
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('error-msg');
+      const btnText = document.getElementById('btn-text');
+      const spinner = document.getElementById('btn-spinner');
+      const submitBtn = document.getElementById('submit-btn');
+
+      // Estado de carga
+      errorEl.style.display = 'none';
+      btnText.style.display = 'none';
+      spinner.style.display = 'inline-block';
+      submitBtn.disabled = true;
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+      submitBtn.disabled = false;
+
+      if (error) {
+        errorEl.textContent = 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Login exitoso → dashboard
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+
+</html>

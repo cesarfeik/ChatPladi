@@ -1,0 +1,27 @@
+{
+  "functions": {
+    "chatbot/api/chat.php": {
+      "runtime": "vercel-php@0.7.2"
+    },
+    "admin/api/process-pdf.php": {
+      "runtime": "vercel-php@0.7.2"
+    },
+    "admin/api/delete-document.php": {
+      "runtime": "vercel-php@0.7.2"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/chatbot/api/chat.php",
+      "destination": "/chatbot/api/chat.php"
+    },
+    {
+      "source": "/admin/api/process-pdf.php",
+      "destination": "/admin/api/process-pdf.php"
+    },
+    {
+      "source": "/admin/api/delete-document.php",
+      "destination": "/admin/api/delete-document.php"
+    }
+  ]
+}

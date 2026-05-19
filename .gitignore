@@ -1,0 +1,16 @@
+# Archivos de diseño (pesados, no van en producción)
+Recursos graficos/**/*.ai
+Recursos graficos/**/*.ttf
+Recursos graficos/TIPOGRAFÍA-*/
+
+# Herramientas locales
+.agents/
+.claude/
+skills-lock.json
+
+# Docs de prueba (solo para desarrollo local)
+docs/pdf-prueba-*.html
+
+# OS
+.DS_Store
+Thumbs.db

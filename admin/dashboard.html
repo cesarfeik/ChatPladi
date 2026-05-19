@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLADIEX Admin — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- PDF.js: extrae texto de PDFs en el navegador -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body class="dashboard-page">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="../Recursos graficos/logo/LOGO HORIZONTAL COLOR.webp" alt="PLADIEX"
+        onerror="this.outerHTML='<span class=\'logo-fallback\'>PLADIEX</span>'" />
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-section="upload">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        Subir PDF
+      </button>
+      <button class="nav-item" data-section="library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        Biblioteca
+      </button>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <div class="user-email" id="user-email">cargando...</div>
+          <div class="user-role">Administrador</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- ── Contenido principal ─────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Sección: Subir PDF -->
+    <section class="section active" id="section-upload">
+      <div class="section-header">
+        <h2 class="section-title">Subir documentos PDF</h2>
+        <p class="section-desc">Los PDFs se procesan automáticamente: se extrae el texto, se divide en fragmentos y se
+          indexa en la base de conocimiento del chatbot (Pinecone).</p>
+      </div>
+
+      <!-- Zona de drop -->
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="12" x2="12" y2="18" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+        </div>
+        <p class="drop-text">Arrastra tus PDFs aquí o <span class="drop-link">selecciona archivos</span></p>
+        <p class="drop-hint">Máximo 10 MB por archivo · Solo formato PDF</p>
+        <input type="file" id="file-input" accept=".pdf" multiple style="display:none" />
+      </div>
+
+      <!-- Cola de archivos -->
+      <div class="file-queue" id="file-queue"></div>
+
+      <!-- Botón procesar -->
+      <div class="upload-actions" id="upload-actions" style="display:none">
+        <button class="btn-primary" id="process-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          Procesar e indexar en Pinecone
+        </button>
+        <button class="btn-secondary" id="clear-btn">Limpiar lista</button>
+      </div>
+
+      <!-- Log de progreso -->
+      <div class="progress-log" id="progress-log" style="display:none">
+        <div class="log-header">
+          <span>Registro de procesamiento</span>
+          <button class="log-clear" id="log-clear">Limpiar</button>
+        </div>
+        <div class="log-body" id="log-body"></div>
+      </div>
+    </section>
+
+    <!-- Sección: Biblioteca -->
+    <section class="section" id="section-library">
+      <div class="section-header">
+        <h2 class="section-title">Biblioteca de documentos</h2>
+        <p class="section-desc">Documentos ya indexados en la base de conocimiento del chatbot.</p>
+      </div>
+      <div class="library-empty" id="library-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="56">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        <p>Aún no hay documentos indexados.</p>
+        <p>Sube tu primer PDF desde la pestaña <strong>Subir PDF</strong>.</p>
+      </div>
+      <div class="library-grid" id="library-grid" style="display:none"></div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── Supabase ───────────────────────────────────────────────────────────
+    const SUPABASE_URL = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dmFqdmhqY3Z6cXNlanJjcXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIxMDUsImV4cCI6MjA5NDc2ODEwNX0.BZeVhHfC7T8X0sAAA9xILGA39Q8iKbZG3SZE2q7HOrw';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // URL del endpoint PHP que procesa PDFs
+    const PROCESS_API = 'api/process-pdf.php';
+
+    // ── Verificar sesión ───────────────────────────────────────────────────
+    let currentSession = null;
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+      currentSession = session;
+      document.getElementById('user-email').textContent = session.user.email;
+      document.getElementById('user-avatar').textContent =
+        session.user.email[0].toUpperCase();
+      loadLibrary();
+    })();
+
+    // ── Logout ─────────────────────────────────────────────────────────────
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    // ── Navegación de secciones ────────────────────────────────────────────
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('section-' + btn.dataset.section).classList.add('active');
+      });
+    });
+
+    // ── Zona de drag & drop ────────────────────────────────────────────────
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    let filesToProcess = [];
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFiles([...e.dataTransfer.files]);
+    });
+
+    fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+
+    function handleFiles(files) {
+      const pdfs = files.filter(f => f.type === 'application/pdf' && f.size <= 10 * 1024 * 1024);
+      if (pdfs.length !== files.length) {
+        alert('Solo se aceptan archivos PDF de hasta 10 MB.');
+      }
+      filesToProcess = [...filesToProcess, ...pdfs];
+      renderQueue();
+    }
+
+    function renderQueue() {
+      const queue = document.getElementById('file-queue');
+      const actions = document.getElementById('upload-actions');
+      queue.innerHTML = '';
+
+      if (filesToProcess.length === 0) {
+        actions.style.display = 'none';
+        return;
+      }
+
+      actions.style.display = 'flex';
+      filesToProcess.forEach((file, i) => {
+        const item = document.createElement('div');
+        item.className = 'queue-item';
+        item.id = `queue-item-${i}`;
+        item.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="2" width="20">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <div class="queue-info">
+            <span class="queue-name">${escHtml(file.name)}</span>
+            <span class="queue-size">${(file.size / 1024).toFixed(1)} KB</span>
+          </div>
+          <span class="queue-status" id="status-${i}">Pendiente</span>
+          <button class="queue-remove" data-index="${i}" aria-label="Quitar">×</button>
+        `;
+        queue.appendChild(item);
+      });
+
+      document.querySelectorAll('.queue-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filesToProcess.splice(Number(btn.dataset.index), 1);
+          renderQueue();
+        });
+      });
+    }
+
+    // ── Procesar PDFs ──────────────────────────────────────────────────────
+    document.getElementById('process-btn').addEventListener('click', processAll);
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      filesToProcess = [];
+      renderQueue();
+    });
+    document.getElementById('log-clear').addEventListener('click', () => {
+      document.getElementById('log-body').innerHTML = '';
+    });
+
+    async function processAll() {
+      if (!currentSession) return;
+      const btn = document.getElementById('process-btn');
+      btn.disabled = true;
+      btn.textContent = 'Procesando...';
+
+      const logContainer = document.getElementById('progress-log');
+      logContainer.style.display = 'block';
+
+      for (let i = 0; i < filesToProcess.length; i++) {
+        const file = filesToProcess[i];
+        setStatus(i, 'Extrayendo texto...', 'processing');
+        log(`📄 Iniciando: ${file.name}`);
+
+        try {
+          // 1. Extraer texto con PDF.js (en el navegador)
+          const text = await extractPdfText(file);
+          log(`✅ Texto extraído: ${text.length} caracteres`);
+          setStatus(i, 'Indexando en Pinecone...', 'processing');
+
+          // 2. Enviar al backend PHP para crear embeddings y guardar en Pinecone
+          const res = await fetch(PROCESS_API, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentSession.access_token}`,
+            },
+            body: JSON.stringify({
+              filename: file.name,
+              text: text,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            setStatus(i, `✅ Indexado (${data.chunks} fragmentos)`, 'done');
+            log(`✅ ${file.name} → ${data.chunks} fragmentos guardados en Pinecone`);
+            saveToLibrary(file.name, data.safe_prefix, data.chunks);
+          } else {
+            throw new Error(data.error || 'Error desconocido en el servidor');
+          }
+
+        } catch (err) {
+          setStatus(i, '❌ Error', 'error');
+          log(`❌ ${file.name}: ${err.message}`);
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Procesar e indexar en Pinecone';
+      log('──────── Proceso completado ────────');
+    }
+
+    // ── Extraer texto de PDF con PDF.js ───────────────────────────────────
+    async function extractPdfText(file) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        fullText += content.items.map(i => i.str).join(' ') + '\n';
+      }
+
+      return fullText.trim();
+    }
+
+    // ── Biblioteca en Supabase ─────────────────────────────────────────────
+    async function saveToLibrary(filename, safePrefix, chunks) {
+      await sb.from('documents').insert({ filename, safe_prefix: safePrefix, chunks });
+      loadLibrary();
+    }
+
+    async function loadLibrary() {
+      const grid  = document.getElementById('library-grid');
+      const empty = document.getElementById('library-empty');
+
+      const { data: lib } = await sb
+        .from('documents')
+        .select('*')
+        .order('uploaded_at', { ascending: false });
+
+      if (!lib || lib.length === 0) {
+        empty.style.display = 'flex';
+        grid.style.display  = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display  = 'grid';
+      grid.innerHTML = lib.map(doc => `
+        <div class="lib-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="1.5" width="32">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <div class="lib-name">${escHtml(doc.filename)}</div>
+          <div class="lib-meta">${doc.chunks} fragmentos · ${new Date(doc.uploaded_at).toLocaleDateString('es-MX')}</div>
+          <button class="lib-delete-btn" data-id="${doc.id}" data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
+            🗑 Eliminar
+          </button>
+        </div>
+      `).join('');
+
+      // Listeners de eliminar
+      document.querySelectorAll('.lib-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteDocument(
+          btn.dataset.id,
+          btn.dataset.prefix,
+          Number(btn.dataset.chunks)
+        ));
+      });
+    }
+
+    async function deleteDocument(id, safePrefix, chunks) {
+      if (!confirm('¿Eliminar este documento de la base de conocimiento?')) return;
+
+      // 1. Eliminar vectores de Pinecone
+      const res = await fetch('api/delete-document.php', {
+        method : 'DELETE',
+        headers: {
+          'Content-Type' : 'application/json',
+          'Authorization': `Bearer ${currentSession.access_token}`,
+        },
+        body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
+      });
+
+      const data = await res.json();
+      if (!data.success) { alert('Error al eliminar de Pinecone: ' + data.error); return; }
+
+      // 2. Eliminar registro de Supabase
+      await sb.from('documents').delete().eq('id', id);
+
+      log(`🗑 Documento eliminado (${data.deleted} vectores borrados de Pinecone)`);
+      loadLibrary();
+    }
+
+    // ── Utilidades UI ──────────────────────────────────────────────────────
+    function setStatus(index, text, type) {
+      const el = document.getElementById(`status-${index}`);
+      if (!el) return;
+      el.textContent = text;
+      el.className = `queue-status status-${type}`;
+    }
+
+    function log(msg) {
+      const body = document.getElementById('log-body');
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.textContent = `[${new Date().toLocaleTimeString('es-MX')}] ${msg}`;
+      body.appendChild(line);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
+</body>
+
+</html>
