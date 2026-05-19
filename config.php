@@ -5,25 +5,30 @@
  * Las keys reales se configuran en: Vercel Dashboard → Settings → Environment Variables
  */
 
+// Lee una variable de entorno buscando en getenv(), $_ENV y $_SERVER
+function env(string $key, string $default = ''): string {
+    return getenv($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? $default));
+}
+
 // ── OpenAI ─────────────────────────────────────────────────────────────────
-define('OPENAI_API_KEY',    getenv('OPENAI_API_KEY')    ?: '');
-define('OPENAI_CHAT_MODEL', getenv('OPENAI_CHAT_MODEL') ?: 'gpt-4o-mini');
-define('OPENAI_EMBED_MODEL',getenv('OPENAI_EMBED_MODEL')?: 'text-embedding-3-small');
+define('OPENAI_API_KEY',    env('OPENAI_API_KEY'));
+define('OPENAI_CHAT_MODEL', env('OPENAI_CHAT_MODEL', 'gpt-4o-mini'));
+define('OPENAI_EMBED_MODEL',env('OPENAI_EMBED_MODEL','text-embedding-3-small'));
 
 // ── Pinecone ────────────────────────────────────────────────────────────────
-define('PINECONE_API_KEY',    getenv('PINECONE_API_KEY')    ?: '');
-define('PINECONE_INDEX_HOST', getenv('PINECONE_INDEX_HOST') ?: '');
-define('PINECONE_NAMESPACE',  getenv('PINECONE_NAMESPACE')  ?: 'pladiex-docs');
+define('PINECONE_API_KEY',    env('PINECONE_API_KEY'));
+define('PINECONE_INDEX_HOST', env('PINECONE_INDEX_HOST'));
+define('PINECONE_NAMESPACE',  env('PINECONE_NAMESPACE', 'pladiex-docs'));
 
 // ── Supabase ────────────────────────────────────────────────────────────────
-define('SUPABASE_URL',        getenv('SUPABASE_URL')        ?: '');
-define('SUPABASE_ANON_KEY',   getenv('SUPABASE_ANON_KEY')   ?: '');
-define('SUPABASE_JWT_SECRET', getenv('SUPABASE_JWT_SECRET') ?: '');
+define('SUPABASE_URL',        env('SUPABASE_URL'));
+define('SUPABASE_ANON_KEY',   env('SUPABASE_ANON_KEY'));
+define('SUPABASE_JWT_SECRET', env('SUPABASE_JWT_SECRET'));
 
 // ── RAG ─────────────────────────────────────────────────────────────────────
-define('RAG_TOP_K',        (int)(getenv('RAG_TOP_K')        ?: 5));
-define('RAG_CHUNK_SIZE',   (int)(getenv('RAG_CHUNK_SIZE')   ?: 500));
-define('RAG_CHUNK_OVERLAP',(int)(getenv('RAG_CHUNK_OVERLAP')?: 50));
+define('RAG_TOP_K',        (int) env('RAG_TOP_K',        '5'));
+define('RAG_CHUNK_SIZE',   (int) env('RAG_CHUNK_SIZE',   '500'));
+define('RAG_CHUNK_OVERLAP',(int) env('RAG_CHUNK_OVERLAP','50'));
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
-define('ALLOWED_ORIGIN', getenv('ALLOWED_ORIGIN') ?: '*');
+define('ALLOWED_ORIGIN', env('ALLOWED_ORIGIN', '*'));
