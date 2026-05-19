@@ -1,3 +1,7 @@
+# Variables de entorno con keys reales — NUNCA subir
+.env
+.env.local
+
 # Archivos de diseño (pesados, no van en producción)
 Recursos graficos/**/*.ai
 Recursos graficos/**/*.ttf
