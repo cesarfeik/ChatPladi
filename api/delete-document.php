@@ -2,16 +2,13 @@
 /**
  * PLADIEX Admin — Eliminar documento de Pinecone
  * ================================================
- * Recibe el prefijo del documento y la cantidad de chunks,
- * reconstruye los IDs de los vectores y los elimina de Pinecone.
- *
  * Método:  DELETE
  * Headers: Authorization: Bearer <supabase_access_token>
  * Body:    { "safe_prefix": "string", "chunks": N }
  * Retorna: { "success": true, "deleted": N }
  */
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGIN);
@@ -21,7 +18,6 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'DELETE')  { jsonError('Método no permitido', 405); }
 
-// Autenticación
 $token = getBearerToken();
 if (!$token || !validateSupabaseJWT($token)) {
     jsonError('No autorizado', 401);
@@ -36,14 +32,12 @@ if (empty($body['safe_prefix']) || !isset($body['chunks'])) {
 $prefix = $body['safe_prefix'];
 $chunks = (int) $body['chunks'];
 
-// Reconstruir todos los IDs de vectores del documento
 $ids = [];
 for ($i = 0; $i < $chunks; $i++) {
     $ids[] = $prefix . '_chunk_' . $i;
 }
 
-// Eliminar de Pinecone en lotes de 100
-$batches  = array_chunk($ids, 100);
+$batches = array_chunk($ids, 100);
 $deleted  = 0;
 
 foreach ($batches as $batch) {
@@ -98,6 +92,8 @@ function validateSupabaseJWT(string $token): bool
     $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
     if (empty($payload)) return false;
     if (!empty($payload['exp']) && $payload['exp'] < time()) return false;
+    $expectedIssuer = rtrim(SUPABASE_URL, '/') . '/auth/v1';
+    if (!empty($payload['iss']) && $payload['iss'] !== $expectedIssuer) return false;
     return true;
 }
 

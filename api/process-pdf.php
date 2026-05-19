@@ -4,20 +4,13 @@ ini_set('log_errors', 1);
 /**
  * PLADIEX Admin — Procesar PDF e Indexar en Pinecone
  * ===================================================
- * Flujo:
- *  1. Valida el JWT de Supabase (solo admins)
- *  2. Recibe el texto extraído del PDF (desde el frontend con PDF.js)
- *  3. Divide el texto en fragmentos (chunks)
- *  4. Crea un embedding por fragmento con OpenAI
- *  5. Guarda todos los vectores en Pinecone
- *
  * Método:  POST
  * Headers: Authorization: Bearer <supabase_access_token>
  * Body:    { "filename": "string", "text": "string" }
  * Retorna: { "success": true, "chunks": N }
  */
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 
 // ─── CORS ──────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
@@ -62,12 +55,10 @@ foreach ($chunks as $i => $chunk) {
     $embedding = createEmbedding($chunk);
 
     if (!$embedding) {
-        // Registrar el error pero continuar con los demás fragmentos
         error_log("PLADIEX admin: fallo embedding en chunk {$i} de {$filename}");
         continue;
     }
 
-    // ID único: nombre del archivo + índice del fragmento
     $safeId = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename) . '_chunk_' . $i;
 
     $vectors[] = [
@@ -109,12 +100,8 @@ echo json_encode([
 // FUNCIONES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Divide el texto en fragmentos solapados para mejor recuperación RAG.
- */
 function splitIntoChunks(string $text, int $size, int $overlap): array
 {
-    // Normalizar espacios
     $text  = preg_replace('/\s+/', ' ', $text);
     $words = explode(' ', $text);
     $total = count($words);
@@ -125,7 +112,7 @@ function splitIntoChunks(string $text, int $size, int $overlap): array
         $slice = array_slice($words, $i, $size);
         if (empty($slice)) break;
         $chunk = implode(' ', $slice);
-        if (strlen(trim($chunk)) > 20) {   // ignorar fragmentos muy pequeños
+        if (strlen(trim($chunk)) > 20) {
             $chunks[] = trim($chunk);
         }
     }
@@ -133,9 +120,6 @@ function splitIntoChunks(string $text, int $size, int $overlap): array
     return $chunks;
 }
 
-/**
- * Crea un embedding para un texto usando OpenAI text-embedding-3-small.
- */
 function createEmbedding(string $text): ?array
 {
     $response = httpPost(
@@ -150,9 +134,6 @@ function createEmbedding(string $text): ?array
     return $response['data'][0]['embedding'] ?? null;
 }
 
-/**
- * Inserta o actualiza vectores en Pinecone (upsert).
- */
 function upsertToPinecone(array $vectors): bool
 {
     $response = httpPost(
@@ -167,42 +148,29 @@ function upsertToPinecone(array $vectors): bool
     return !empty($response['upsertedCount']) || isset($response['upsertedCount']);
 }
 
-/**
- * Valida el JWT de Supabase verificando la firma con el JWT Secret.
- * Verificación simple de estructura + decodificación. Para mayor seguridad
- * en producción, usa la librería firebase/php-jwt.
- */
 function validateSupabaseJWT(string $token): bool
 {
     $parts = explode('.', $token);
     if (count($parts) !== 3) return false;
 
-    // Decodificar payload (sin verificar firma, solo para validar rol)
-    // En producción reemplaza esto por verificación con firebase/php-jwt
     $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
 
     if (empty($payload)) return false;
 
-    // Verificar que el token no esté expirado
     if (!empty($payload['exp']) && $payload['exp'] < time()) return false;
 
-    // Verificar que viene de tu proyecto Supabase
     $expectedIssuer = rtrim(SUPABASE_URL, '/') . '/auth/v1';
     if (!empty($payload['iss']) && $payload['iss'] !== $expectedIssuer) return false;
 
     return true;
 }
 
-/**
- * Extrae el Bearer token del header Authorization.
- */
 function getBearerToken(): ?string
 {
     $header = $_SERVER['HTTP_AUTHORIZATION']
            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
            ?? '';
 
-    // Fallback para XAMPP/Apache que bloquea Authorization por defecto
     if (empty($header) && function_exists('apache_request_headers')) {
         $all    = apache_request_headers();
         $header = $all['Authorization'] ?? $all['authorization'] ?? '';
@@ -215,9 +183,6 @@ function getBearerToken(): ?string
     return null;
 }
 
-/**
- * Responde con JSON de error y termina la ejecución.
- */
 function jsonError(string $message, int $code = 400): void
 {
     http_response_code($code);
@@ -225,9 +190,6 @@ function jsonError(string $message, int $code = 400): void
     exit;
 }
 
-/**
- * Realiza una petición HTTP POST con cURL.
- */
 function httpPost(string $url, array $headers, array $data): array
 {
     $ch = curl_init($url);

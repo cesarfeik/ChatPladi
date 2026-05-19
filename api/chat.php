@@ -14,7 +14,7 @@
  * Retorna: { "reply": "string", "links": [ {label, url}, ... ] }
  */
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 
 // ─── CORS ──────────────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
@@ -73,9 +73,6 @@ echo json_encode([
 // FUNCIONES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Genera un vector de embedding usando text-embedding-3-small de OpenAI.
- */
 function createEmbedding(string $text): ?array
 {
     $response = httpPost(
@@ -90,9 +87,6 @@ function createEmbedding(string $text): ?array
     return $response['data'][0]['embedding'] ?? null;
 }
 
-/**
- * Consulta Pinecone con el vector y devuelve un bloque de texto con el contexto.
- */
 function queryPinecone(array $vector): string
 {
     $response = httpPost(
@@ -123,13 +117,10 @@ function queryPinecone(array $vector): string
     return implode("\n\n---\n\n", $chunks);
 }
 
-/**
- * Llama a GPT-4o-mini con el historial, el contexto RAG y el mensaje actual.
- */
 function callChatGPT(string $userMessage, array $history, string $context): string
 {
     $systemPrompt = <<<PROMPT
-Eres el asistente virtual de PLADIEX, una plataforma de salud digital en México y Latinoamérica.
+Eres Alex Ciencia, el asistente virtual de PLADIEX, una plataforma de salud digital en México y Latinoamérica.
 Tu misión es ayudar a los usuarios con:
 - Preguntas sobre la plataforma (servicios, registro, citas, tienda, etc.)
 - Pre-diagnóstico orientativo basado en síntomas que el usuario describe
@@ -149,7 +140,6 @@ PROMPT;
 
     $messages = [['role' => 'system', 'content' => $systemPrompt]];
 
-    // Agregar historial de la conversación (máximo últimos 10 turnos)
     $recentHistory = array_slice($history, -10);
     foreach ($recentHistory as $turn) {
         if (!empty($turn['role']) && !empty($turn['content'])) {
@@ -177,10 +167,6 @@ PROMPT;
         ?? 'Lo siento, ocurrió un error. Por favor intenta de nuevo.';
 }
 
-/**
- * Detecta si el mensaje contiene intención de navegar a otra sección del sitio.
- * Devuelve un arreglo de botones de acceso directo.
- */
 function detectNavigationLinks(string $message): array
 {
     $message = mb_strtolower($message);
@@ -230,9 +216,6 @@ function detectNavigationLinks(string $message): array
     return $links;
 }
 
-/**
- * Utilidad: realiza una petición HTTP POST con cURL.
- */
 function httpPost(string $url, array $headers, array $data): array
 {
     $ch = curl_init($url);

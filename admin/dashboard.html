@@ -130,7 +130,7 @@
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // URL del endpoint PHP que procesa PDFs
-    const PROCESS_API = 'api/process-pdf.php';
+    const PROCESS_API = '/api/process-pdf.php';
 
     // ── Verificar sesión ───────────────────────────────────────────────────
     let currentSession = null;
@@ -360,7 +360,7 @@
       if (!confirm('¿Eliminar este documento de la base de conocimiento?')) return;
 
       // 1. Eliminar vectores de Pinecone
-      const res = await fetch('api/delete-document.php', {
+      const res = await fetch('/api/delete-document.php', {
         method : 'DELETE',
         headers: {
           'Content-Type' : 'application/json',

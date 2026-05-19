@@ -6,7 +6,7 @@
   'use strict';
 
   const scriptTag = document.currentScript;
-  const API_URL = scriptTag?.dataset?.api || '/chatbot/api/chat.php';
+  const API_URL = scriptTag?.dataset?.api || '/api/chat.php';
   const LOGO_URL = scriptTag?.dataset?.logo || '';
 
   // ── Accesos rápidos con colores por categoría ───────────────────────────
@@ -20,11 +20,11 @@
 
   // ── Mapa de accesos directos para respuestas del bot ───────────────────
   const NAV_MAP = [
-    { keywords: ['tienda', 'comprar', 'producto'], label: 'Ir a la Tienda', url: 'https://pladiex.com/mall/', color: '#E7BA11' },
-    { keywords: ['cita', 'consulta', 'agendar', 'médico'], label: 'Ver Médicos / Citas', url: 'https://pladiex.com/sistema/index.html', color: '#5CB3C1' },
+    { keywords: ['tienda', 'comprar', 'producto', 'mall', 'productos'], label: 'Ir a la Tienda', url: 'https://pladiex.com/mall/', color: '#E7BA11' },
+    { keywords: ['cita', 'consulta', 'agendar', 'médico', 'medicos'], label: 'Ver Médicos / Citas', url: 'https://pladiex.com/sistema/index.html', color: '#5CB3C1' },
     { keywords: ['perfil', 'mi cuenta', 'iniciar sesión'], label: 'Mi Perfil', url: 'https://pladiex.com/sistema/index.html', color: '#01587A' },
     { keywords: ['préstamo', 'financiamiento', 'crédito'], label: 'Financiamiento', url: 'https://pladiex.com/landing-registro/', color: '#E7BA11' },
-    { keywords: ['capacitación', 'curso', 'formación'], label: 'Capacitación', url: 'https://pladiex.com/plataforma/cursos.html', color: '#5CB3C1' },
+    { keywords: ['capacitación', 'curso', 'formación', 'cursos'], label: 'Capacitación', url: 'https://pladiex.com/plataforma/cursos.html', color: '#5CB3C1' },
     { keywords: ['contacto', 'whatsapp', 'llamar'], label: 'Contacto', url: 'https://api.whatsapp.com/send?phone=+525632311545&text=¡Bienvenido%20a%20PLADIEX!%20¿En%20qué%20podemos%20ayudarte?', color: '#01587A' },
   ];
 
