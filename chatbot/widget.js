@@ -20,12 +20,24 @@
 
   // ── Mapa de accesos directos para respuestas del bot ───────────────────
   const NAV_MAP = [
-    { keywords: ['tienda', 'comprar', 'producto', 'mall', 'productos'], label: 'Ir a la Tienda', url: 'https://pladiex.com/mall/', color: '#E7BA11' },
-    { keywords: ['cita', 'consulta', 'agendar', 'médico', 'medicos'], label: 'Ver Médicos / Citas', url: 'https://pladiex.com/sistema/index.html', color: '#5CB3C1' },
-    { keywords: ['perfil', 'mi cuenta', 'iniciar sesión'], label: 'Mi Perfil', url: 'https://pladiex.com/sistema/index.html', color: '#01587A' },
-    { keywords: ['préstamo', 'financiamiento', 'crédito'], label: 'Financiamiento', url: 'https://pladiex.com/landing-registro/', color: '#E7BA11' },
-    { keywords: ['capacitación', 'curso', 'formación', 'cursos'], label: 'Capacitación', url: 'https://pladiex.com/plataforma/cursos.html', color: '#5CB3C1' },
-    { keywords: ['contacto', 'whatsapp', 'llamar'], label: 'Contacto', url: 'https://api.whatsapp.com/send?phone=+525632311545&text=¡Bienvenido%20a%20PLADIEX!%20¿En%20qué%20podemos%20ayudarte?', color: '#01587A' },
+    { keywords: ['tienda', 'comprar', 'producto', 'mall', 'productos'],
+      label: 'Ir a la Tienda', sub: 'Ver productos y ofertas',
+      icon: '🛍️', url: 'https://pladiex.com/mall/', color: '#E7BA11' },
+    { keywords: ['cita', 'consulta', 'agendar', 'médico', 'medicos'],
+      label: 'Ver Médicos / Citas', sub: 'Agendar o consultar una cita',
+      icon: '📅', url: 'https://pladiex.com/sistema/index.html', color: '#5CB3C1' },
+    { keywords: ['perfil', 'mi cuenta', 'iniciar sesión'],
+      label: 'Mi Perfil', sub: 'Accede a tu cuenta PLADIEX',
+      icon: '👤', url: 'https://pladiex.com/sistema/index.html', color: '#01587A' },
+    { keywords: ['préstamo', 'financiamiento', 'crédito'],
+      label: 'Financiamiento', sub: 'Crédito médico desde $1,000 MXN',
+      icon: '💳', url: 'https://pladiex.com/landing-registro/', color: '#E7BA11' },
+    { keywords: ['capacitación', 'curso', 'formación', 'cursos'],
+      label: 'Capacitación', sub: 'Cursos y formación en salud',
+      icon: '🎓', url: 'https://pladiex.com/plataforma/cursos.html', color: '#5CB3C1' },
+    { keywords: ['contacto', 'whatsapp', 'llamar'],
+      label: 'Contactar por WhatsApp', sub: 'Atención lun–vie 8:00–20:00',
+      icon: '💬', url: 'https://api.whatsapp.com/send?phone=+525632311545&text=¡Bienvenido%20a%20PLADIEX!%20¿En%20qué%20podemos%20ayudarte?', color: '#01587A' },
   ];
 
   let isOpen = false;
@@ -247,8 +259,8 @@
   function detectLinks(text) {
     const lower = text.toLowerCase();
     const links = [];
-    NAV_MAP.forEach(({ keywords, label, url, color }) => {
-      if (keywords.some(k => lower.includes(k))) links.push({ label, url, color });
+    NAV_MAP.forEach(({ keywords, label, sub, icon, url, color }) => {
+      if (keywords.some(k => lower.includes(k))) links.push({ label, sub, icon, url, color });
     });
     return links;
   }
@@ -270,8 +282,14 @@
 
     const linksHtml = links?.length
       ? `<div class="plx-nav-links">${links.map(l =>
-        `<a href="${l.url}" class="plx-nav-btn" style="background:${l.color || '#01587A'}"
-             target="_blank" rel="noopener">${escHtml(l.label)}</a>`
+        `<a href="${escHtml(l.url)}" class="plx-nav-btn" target="_blank" rel="noopener">
+          <span class="plx-nav-btn-icon" style="background:${l.color}22">${l.icon || '→'}</span>
+          <span class="plx-nav-btn-text">
+            <span class="plx-nav-btn-title">${escHtml(l.label)}</span>
+            ${l.sub ? `<span class="plx-nav-btn-sub">${escHtml(l.sub)}</span>` : ''}
+          </span>
+          <span class="plx-nav-btn-arrow">›</span>
+        </a>`
       ).join('')}</div>`
       : '';
 
