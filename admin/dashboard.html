@@ -246,6 +246,8 @@
       const logContainer = document.getElementById('progress-log');
       logContainer.style.display = 'block';
 
+      const processedFiles = new Set();
+
       for (let i = 0; i < filesToProcess.length; i++) {
         const file = filesToProcess[i];
         setStatus(i, 'Extrayendo texto...', 'processing');
@@ -276,6 +278,7 @@
             setStatus(i, `✅ Indexado (${data.chunks} fragmentos)`, 'done');
             log(`✅ ${file.name} → ${data.chunks} fragmentos guardados en Pinecone`);
             saveToLibrary(file.name, data.safe_prefix, data.chunks);
+            processedFiles.add(file);
           } else {
             throw new Error(data.error || 'Error desconocido en el servidor');
           }
@@ -289,6 +292,13 @@
       btn.disabled = false;
       btn.textContent = 'Procesar e indexar en Pinecone';
       log('──────── Proceso completado ────────');
+
+      // Quitar de la cola los archivos procesados exitosamente
+      if (processedFiles.size > 0) {
+        await new Promise(r => setTimeout(r, 1500));
+        filesToProcess = filesToProcess.filter(f => !processedFiles.has(f));
+        renderQueue();
+      }
     }
 
     // ── Extraer texto de PDF con PDF.js ───────────────────────────────────
