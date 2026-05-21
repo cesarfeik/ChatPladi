@@ -22,9 +22,10 @@
 
       <!-- Header con logo -->
       <div class="login-card-header">
-        <img src="img/logo-blanco.png" alt="PLADIEX"
-          onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block'" />
-        <span id="logo-fallback" style="display:none" class="logo-fallback">PLADIEX</span>
+        <div class="login-logo-badge">
+          <img src="img/logo-blanco.png" alt="PLADIEX"
+            onerror="this.parentElement.innerHTML='<span class=\'logo-fallback\'>PLADIEX</span>'" />
+        </div>
         <p class="login-card-subtitle">Panel Administrativo — Acceso Restringido</p>
       </div>
 
