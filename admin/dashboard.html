@@ -14,38 +14,15 @@
 
 <body class="dashboard-page">
 
-  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <img src="img/logo-horizontal.webp" alt="PLADIEX"
-        onerror="this.outerHTML='<span class=\'logo-fallback-dark\'>PLADIEX</span>'" />
-    </div>
-
-    <nav class="sidebar-nav">
-      <button class="nav-item active" data-section="upload">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        Subir PDF
-      </button>
-      <button class="nav-item" data-section="library">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-        Biblioteca
-      </button>
-    </nav>
-
-    <div class="sidebar-user">
-      <div class="user-info">
-        <div class="user-avatar" id="user-avatar">A</div>
-        <div>
-          <div class="user-email" id="user-email">Cargando...</div>
-          <div class="user-role">Administrador</div>
-        </div>
+  <!-- ── Topbar ────────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <img src="img/logo-horizontal.webp" alt="PLADIEX" class="topbar-logo"
+      onerror="this.outerHTML='<span class=\'topbar-logo-text\'>PLADIEX</span>'" />
+    <div class="topbar-user">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div class="topbar-user-info">
+        <span class="topbar-email" id="user-email">Cargando...</span>
+        <span class="topbar-role">Administrador</span>
       </div>
       <button class="btn-logout" id="logout-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
@@ -56,92 +33,114 @@
         Cerrar sesión
       </button>
     </div>
-  </aside>
+  </header>
 
-  <!-- ── Contenido principal ─────────────────────────────────────────────── -->
-  <div class="main-content">
-
-    <!-- Banner header -->
-    <header class="dash-header">
-      <div class="dash-header-inner">
-        <div>
-          <h1 class="dash-header-title">Panel de Administración</h1>
-          <p class="dash-header-sub" id="header-email">Cargando...</p>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" width="52" height="52">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
+  <!-- ── Banner ────────────────────────────────────────────────────────────── -->
+  <div class="page-banner">
+    <div class="page-banner-inner">
+      <div class="page-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" width="44">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
       </div>
-    </header>
-
-    <div class="dash-body">
-
-      <!-- Sección: Subir PDF -->
-      <section class="section active" id="section-upload">
-        <div class="section-header">
-          <h2 class="section-title">Subir documentos PDF</h2>
-          <p class="section-desc">Los PDFs se procesan automáticamente: se extrae el texto, se divide en fragmentos y se indexa en la base de conocimiento del chatbot (Pinecone).</p>
-        </div>
-
-        <div class="drop-zone" id="drop-zone">
-          <div class="drop-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="12" y1="12" x2="12" y2="18"/>
-              <line x1="9" y1="15" x2="15" y2="15"/>
-            </svg>
-          </div>
-          <p class="drop-text">Arrastra tus PDFs aquí o <span class="drop-link">selecciona archivos</span></p>
-          <p class="drop-hint">Máximo 10 MB por archivo · Solo formato PDF</p>
-          <input type="file" id="file-input" accept=".pdf" multiple style="display:none" />
-        </div>
-
-        <div class="file-queue" id="file-queue"></div>
-
-        <div class="upload-actions" id="upload-actions" style="display:none">
-          <button class="btn-primary" id="process-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-            Procesar e indexar en Pinecone
-          </button>
-          <button class="btn-secondary" id="clear-btn">Limpiar lista</button>
-        </div>
-
-        <div class="progress-log" id="progress-log" style="display:none">
-          <div class="log-header">
-            <span>Registro de procesamiento</span>
-            <button class="log-clear" id="log-clear">Limpiar</button>
-          </div>
-          <div class="log-body" id="log-body"></div>
-        </div>
-      </section>
-
-      <!-- Sección: Biblioteca -->
-      <section class="section" id="section-library">
-        <div class="section-header">
-          <h2 class="section-title">Biblioteca de documentos</h2>
-          <p class="section-desc">Documentos ya indexados en la base de conocimiento del chatbot.</p>
-        </div>
-        <div class="library-empty" id="library-empty">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="56">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          </svg>
-          <p>Aún no hay documentos indexados.</p>
-          <p>Sube tu primer PDF desde la pestaña <strong>Subir PDF</strong>.</p>
-        </div>
-        <div class="library-list" id="library-grid" style="display:none"></div>
-      </section>
-
+      <div>
+        <p class="page-banner-label">Bienvenido al</p>
+        <h1 class="page-banner-title">Panel de Administración <span id="banner-email"></span></h1>
+      </div>
     </div>
   </div>
 
-  <!-- ── Modal de vista previa ────────────────────────────────────────────── -->
+  <!-- ── Layout de dos columnas ────────────────────────────────────────────── -->
+  <div class="page-wrapper">
+    <div class="page-layout">
+
+      <!-- Navegación izquierda -->
+      <nav class="page-nav-card">
+        <button class="nav-item active" data-section="upload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Subir PDF
+        </button>
+        <button class="nav-item" data-section="library">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Biblioteca
+        </button>
+      </nav>
+
+      <!-- Contenido principal -->
+      <main class="page-main-card">
+
+        <!-- Sección: Subir PDF -->
+        <section class="section active" id="section-upload">
+          <div class="section-header">
+            <h2 class="section-title">Subir documentos PDF</h2>
+            <p class="section-desc">Los PDFs se procesan automáticamente: se extrae el texto, se divide en fragmentos y se indexa en la base de conocimiento del chatbot (Pinecone).</p>
+          </div>
+
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="12" x2="12" y2="18"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <p class="drop-text">Arrastra tus PDFs aquí o <span class="drop-link">selecciona archivos</span></p>
+            <p class="drop-hint">Máximo 10 MB por archivo · Solo formato PDF</p>
+            <input type="file" id="file-input" accept=".pdf" multiple style="display:none" />
+          </div>
+
+          <div class="file-queue" id="file-queue"></div>
+
+          <div class="upload-actions" id="upload-actions" style="display:none">
+            <button class="btn-primary" id="process-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Procesar e indexar en Pinecone
+            </button>
+            <button class="btn-secondary" id="clear-btn">Limpiar lista</button>
+          </div>
+
+          <div class="progress-log" id="progress-log" style="display:none">
+            <div class="log-header">
+              <span>Registro de procesamiento</span>
+              <button class="log-clear" id="log-clear">Limpiar</button>
+            </div>
+            <div class="log-body" id="log-body"></div>
+          </div>
+        </section>
+
+        <!-- Sección: Biblioteca -->
+        <section class="section" id="section-library">
+          <div class="section-header">
+            <h2 class="section-title">Biblioteca de documentos</h2>
+            <p class="section-desc">Documentos ya indexados en la base de conocimiento del chatbot.</p>
+          </div>
+          <div class="library-empty" id="library-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="56">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <p>Aún no hay documentos indexados.</p>
+            <p>Sube tu primer PDF desde <strong>Subir PDF</strong>.</p>
+          </div>
+          <div class="library-list" id="library-grid" style="display:none"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ── Modal de vista previa ─────────────────────────────────────────────── -->
   <div class="modal-overlay" id="preview-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -165,22 +164,21 @@
   </div>
 
   <script>
-    const SUPABASE_URL     = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
+    const SUPABASE_URL      = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dmFqdmhqY3Z6cXNlanJjcXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIxMDUsImV4cCI6MjA5NDc2ODEwNX0.BZeVhHfC7T8X0sAAA9xILGA39Q8iKbZG3SZE2q7HOrw';
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const PROCESS_API = '/api/process-pdf.php';
 
     let currentSession = null;
 
-    // ── Verificar sesión ─────────────────────────────────────────────────────
+    // ── Sesión ───────────────────────────────────────────────────────────────
     (async () => {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'index.html'; return; }
       currentSession = session;
       const email = session.user.email;
       document.getElementById('user-email').textContent = email;
-      document.getElementById('header-email').textContent = email;
+      document.getElementById('banner-email').textContent = email;
       document.getElementById('user-avatar').textContent = email[0].toUpperCase();
       loadLibrary();
     })();
@@ -208,9 +206,9 @@
     let filesToProcess = [];
 
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', (e) => {
+    dropZone.addEventListener('drop', e => {
       e.preventDefault(); dropZone.classList.remove('dragover');
       handleFiles([...e.dataTransfer.files]);
     });
@@ -233,7 +231,6 @@
       filesToProcess.forEach((file, i) => {
         const item = document.createElement('div');
         item.className = 'queue-item';
-        item.id = `queue-item-${i}`;
         item.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="2" width="20">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -248,8 +245,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
-          </button>
-        `;
+          </button>`;
         queue.appendChild(item);
       });
 
@@ -261,7 +257,7 @@
       });
     }
 
-    // ── Procesar PDFs ────────────────────────────────────────────────────────
+    // ── Procesar ─────────────────────────────────────────────────────────────
     document.getElementById('process-btn').addEventListener('click', processAll);
     document.getElementById('clear-btn').addEventListener('click', () => { filesToProcess = []; renderQueue(); });
     document.getElementById('log-clear').addEventListener('click', () => { document.getElementById('log-body').innerHTML = ''; });
@@ -270,8 +266,6 @@
       if (!currentSession) return;
       const btn = document.getElementById('process-btn');
       btn.disabled = true;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/></svg> Procesando...`;
-
       document.getElementById('progress-log').style.display = 'block';
       const processedFiles = new Set();
 
@@ -285,7 +279,7 @@
           log('Texto extraido: ' + text.length + ' caracteres');
           setStatus(i, 'Indexando...', 'processing');
 
-          const res = await fetch(PROCESS_API, {
+          const res = await fetch('/api/process-pdf.php', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -295,10 +289,9 @@
           });
 
           const data = await res.json();
-
           if (data.success) {
             setStatus(i, 'Listo — ' + data.chunks + ' fragmentos', 'done');
-            log(file.name + ' — ' + data.chunks + ' fragmentos guardados en Pinecone');
+            log(file.name + ': ' + data.chunks + ' fragmentos guardados');
             saveToLibrary(file.name, data.safe_prefix, data.chunks);
             processedFiles.add(file);
           } else {
@@ -311,7 +304,6 @@
       }
 
       btn.disabled = false;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Procesar e indexar en Pinecone`;
       log('Proceso completado.');
 
       if (processedFiles.size > 0) {
@@ -348,17 +340,14 @@
       const { data: lib } = await sb.from('documents').select('*').order('uploaded_at', { ascending: false });
 
       if (!lib || lib.length === 0) {
-        empty.style.display = 'flex';
-        grid.style.display  = 'none';
-        return;
+        empty.style.display = 'flex'; grid.style.display = 'none'; return;
       }
 
-      empty.style.display = 'none';
-      grid.style.display  = 'block';
+      empty.style.display = 'none'; grid.style.display = 'block';
       grid.innerHTML = lib.map(doc => `
         <div class="lib-row">
           <div class="lib-row-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="1.5" width="24">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="1.5" width="22">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
             </svg>
@@ -369,24 +358,19 @@
           </div>
           <div class="lib-row-actions">
             <button class="lib-preview-btn"
-              data-prefix="${escHtml(doc.safe_prefix)}"
-              data-filename="${escHtml(doc.filename)}"
-              data-chunks="${doc.chunks}"
-              data-date="${doc.uploaded_at}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+              data-prefix="${escHtml(doc.safe_prefix)}" data-filename="${escHtml(doc.filename)}"
+              data-chunks="${doc.chunks}" data-date="${doc.uploaded_at}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
               Vista previa
             </button>
             <button class="lib-delete-btn"
-              data-id="${doc.id}"
-              data-prefix="${escHtml(doc.safe_prefix)}"
-              data-chunks="${doc.chunks}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+              data-id="${doc.id}" data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                <path d="M10 11v6M14 11v6"/>
               </svg>
               Eliminar
             </button>
@@ -395,16 +379,12 @@
       `).join('');
 
       document.querySelectorAll('.lib-preview-btn').forEach(btn => {
-        btn.addEventListener('click', () => previewDocument(
-          btn.dataset.prefix, btn.dataset.filename,
-          Number(btn.dataset.chunks), btn.dataset.date
-        ));
+        btn.addEventListener('click', () =>
+          previewDocument(btn.dataset.prefix, btn.dataset.filename, Number(btn.dataset.chunks), btn.dataset.date));
       });
-
       document.querySelectorAll('.lib-delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => deleteDocument(
-          btn.dataset.id, btn.dataset.prefix, Number(btn.dataset.chunks)
-        ));
+        btn.addEventListener('click', () =>
+          deleteDocument(btn.dataset.id, btn.dataset.prefix, Number(btn.dataset.chunks)));
       });
     }
 
@@ -412,10 +392,7 @@
       if (!confirm('¿Eliminar este documento de la base de conocimiento?')) return;
       const res = await fetch('/api/delete-document.php', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentSession.access_token}`,
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
         body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
       });
       const data = await res.json();
@@ -437,10 +414,7 @@
       try {
         const res = await fetch('/api/get-document-preview.php', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentSession.access_token}`,
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
           body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
         });
         const data = await res.json();
@@ -451,11 +425,8 @@
               <div class="chunk-card">
                 <div class="chunk-label">Fragmento ${i + 1} de ${chunks}</div>
                 <div class="chunk-text">${escHtml(text)}</div>
-              </div>
-            `).join('') +
-            (chunks > 3
-              ? `<p class="chunk-more">... y ${chunks - 3} fragmento${chunks - 3 > 1 ? 's' : ''} adicional${chunks - 3 > 1 ? 'es' : ''} en la base de conocimiento</p>`
-              : '');
+              </div>`).join('') +
+            (chunks > 3 ? `<p class="chunk-more">... y ${chunks - 3} fragmento${chunks - 3 > 1 ? 's' : ''} adicional${chunks - 3 > 1 ? 'es' : ''} en la base de conocimiento</p>` : '');
         } else {
           document.getElementById('modal-body').innerHTML =
             '<p class="modal-empty">No se pudo obtener el contenido de este documento.</p>';
@@ -469,12 +440,11 @@
     document.getElementById('modal-close').addEventListener('click', () => {
       document.getElementById('preview-modal').style.display = 'none';
     });
-    document.getElementById('preview-modal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget)
-        document.getElementById('preview-modal').style.display = 'none';
+    document.getElementById('preview-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
     });
 
-    // ── Utilidades UI ────────────────────────────────────────────────────────
+    // ── Utilidades ───────────────────────────────────────────────────────────
     function setStatus(index, text, type) {
       const el = document.getElementById(`status-${index}`);
       if (el) { el.textContent = text; el.className = `queue-status status-${type}`; }

@@ -17,25 +17,24 @@ if (!$token || !validateSupabaseJWT($token)) {
     jsonError('No autorizado', 401);
 }
 
-$body = json_decode(file_get_contents('php://input'), true);
-$safe_prefix  = trim($body['safe_prefix'] ?? '');
-$chunk_count  = (int)($body['chunks'] ?? 0);
+$body        = json_decode(file_get_contents('php://input'), true);
+$safe_prefix = trim($body['safe_prefix'] ?? '');
+$chunk_count = (int)($body['chunks'] ?? 0);
 
 if (!$safe_prefix || $chunk_count < 1) {
     jsonError('Parámetros inválidos');
 }
 
-// Fetch the first 3 chunk IDs from Pinecone
 $preview_count = min(3, $chunk_count);
 $ids = [];
 for ($i = 0; $i < $preview_count; $i++) {
     $ids[] = $safe_prefix . '_' . $i;
 }
 
-$query_string = implode('&', array_map(fn($id) => 'ids=' . urlencode($id), $ids));
-$query_string .= '&namespace=' . urlencode(PINECONE_NAMESPACE);
-
-$url = PINECONE_INDEX_HOST . '/vectors/fetch?' . $query_string;
+// Pinecone fetch by vector IDs
+$id_params    = implode('&', array_map(fn($id) => 'ids=' . urlencode($id), $ids));
+$namespace    = urlencode(PINECONE_NAMESPACE);
+$url          = PINECONE_INDEX_HOST . '/vectors/fetch?' . $id_params . '&namespace=' . $namespace;
 
 $ch = curl_init($url);
 curl_setopt_array($ch, [
@@ -44,13 +43,14 @@ curl_setopt_array($ch, [
         'Api-Key: ' . PINECONE_API_KEY,
         'Accept: application/json',
     ],
+    CURLOPT_TIMEOUT        => 15,
 ]);
 $raw  = curl_exec($ch);
 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-if ($code !== 200) {
-    jsonError('No se pudo obtener la vista previa de Pinecone');
+if ($raw === false || $code >= 400) {
+    jsonError('Error al consultar Pinecone (' . $code . ')');
 }
 
 $data   = json_decode($raw, true);
@@ -58,37 +58,51 @@ $chunks = [];
 
 foreach ($ids as $id) {
     $text = $data['vectors'][$id]['metadata']['text'] ?? null;
-    if ($text) {
+    if ($text !== null && $text !== '') {
         $chunks[] = $text;
     }
 }
 
 echo json_encode(['success' => true, 'chunks' => $chunks]);
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers (misma implementación que process-pdf.php) ─────────────────────
 
-function getBearerToken(): string
+function getBearerToken(): ?string
 {
     $header = $_SERVER['HTTP_AUTHORIZATION']
-           ?? apache_request_headers()['Authorization']
+           ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
            ?? '';
-    return trim(str_replace('Bearer', '', $header));
+
+    if (empty($header) && function_exists('apache_request_headers')) {
+        $all    = apache_request_headers();
+        $header = $all['Authorization'] ?? $all['authorization'] ?? '';
+    }
+
+    if (preg_match('/^Bearer\s+(.+)$/i', $header, $m)) {
+        return $m[1];
+    }
+
+    return null;
 }
 
 function validateSupabaseJWT(string $token): bool
 {
     $parts = explode('.', $token);
     if (count($parts) !== 3) return false;
+
     $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
     if (empty($payload)) return false;
-    if (($payload['exp'] ?? 0) < time()) return false;
-    if (($payload['iss'] ?? '') !== SUPABASE_URL . '/auth/v1') return false;
+    if (!empty($payload['exp']) && $payload['exp'] < time()) return false;
+
+    $expectedIssuer = rtrim(SUPABASE_URL, '/') . '/auth/v1';
+    if (!empty($payload['iss']) && $payload['iss'] !== $expectedIssuer) return false;
+
     return true;
 }
 
-function jsonError(string $msg, int $code = 400): never
+function jsonError(string $message, int $code = 400): void
 {
     http_response_code($code);
-    echo json_encode(['success' => false, 'error' => $msg]);
+    echo json_encode(['success' => false, 'error' => $message]);
     exit;
 }
