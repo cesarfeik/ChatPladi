@@ -7,88 +7,112 @@
   <title>PLADIEX Admin — Acceso</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Supabase JS SDK (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 
 <body class="login-page">
 
+  <!-- Fondo borroso -->
+  <div class="login-bg"></div>
+
   <div class="login-wrapper">
 
-    <!-- Logo -->
-    <div class="login-logo">
-      <img src="../Recursos graficos/logo/LOGO HORIZONTAL COLOR.webp" alt="PLADIEX"
-        onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'" />
-      <span id="logo-text" style="display:none" class="logo-fallback">PLADIEX</span>
-    </div>
-
-    <!-- Card -->
     <div class="login-card">
-      <h1 class="login-title">Panel Administrativo</h1>
-      <p class="login-subtitle">Acceso exclusivo para administradores</p>
 
-      <form id="login-form" novalidate>
+      <!-- Header con logo -->
+      <div class="login-card-header">
+        <img src="img/logo-blanco.png" alt="PLADIEX"
+          onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block'" />
+        <span id="logo-fallback" style="display:none" class="logo-fallback">PLADIEX</span>
+        <p class="login-card-subtitle">Panel Administrativo — Acceso Restringido</p>
+      </div>
 
-        <div class="field-group">
-          <label for="email" class="field-label">Correo electrónico</label>
-          <input type="email" id="email" name="email" class="field-input" placeholder="admin@pladiex.com" required
-            autocomplete="email" />
-        </div>
+      <!-- Cuerpo con formulario -->
+      <div class="login-card-body">
+        <form id="login-form" novalidate>
 
-        <div class="field-group">
-          <label for="password" class="field-label">Contraseña</label>
-          <div class="password-wrapper">
-            <input type="password" id="password" name="password" class="field-input" placeholder="••••••••" required
-              autocomplete="current-password" />
-            <button type="button" class="toggle-pwd" id="toggle-pwd" aria-label="Mostrar contraseña">
-              <!-- ojo abierto -->
-              <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <!-- ojo cerrado (oculto por defecto) -->
-              <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
-                style="display:none">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-              </svg>
-            </button>
+          <div class="field-group">
+            <label for="email" class="field-label">Correo Electrónico</label>
+            <div class="field-icon-wrap">
+              <span class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
+                  <rect x="2" y="4" width="20" height="16" rx="3"/>
+                  <path d="m22 7-10 7L2 7"/>
+                </svg>
+              </span>
+              <input type="email" id="email" name="email" class="field-input"
+                placeholder="admin@pladiex.com" required autocomplete="email" />
+            </div>
           </div>
-        </div>
 
-        <!-- Mensaje de error -->
-        <div class="alert alert-error" id="error-msg" style="display:none"></div>
+          <div class="field-group">
+            <label for="password" class="field-label">Contraseña</label>
+            <div class="field-icon-wrap password-wrapper">
+              <span class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input type="password" id="password" name="password" class="field-input"
+                placeholder="••••••••" required autocomplete="current-password" />
+              <button type="button" class="toggle-pwd" id="toggle-pwd" aria-label="Mostrar contraseña">
+                <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                  style="display:none">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
 
-        <button type="submit" class="btn-primary" id="submit-btn">
-          <span id="btn-text">Iniciar sesión</span>
-          <span id="btn-spinner" class="spinner" style="display:none"></span>
-        </button>
+          <div class="remember-me">
+            <input type="checkbox" id="remember" name="remember" />
+            <label for="remember">Recordar mi sesión</label>
+          </div>
 
-      </form>
+          <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+          <button type="submit" class="btn-primary" id="submit-btn">
+            <svg id="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16">
+              <path d="M15 3h6v6M10 14 21 3M18 13v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h8"/>
+            </svg>
+            <span id="btn-text">Iniciar Sesión</span>
+            <span id="btn-spinner" class="spinner" style="display:none"></span>
+          </button>
+
+        </form>
+      </div>
     </div>
 
-    <p class="login-note">Solo cuentas autorizadas pueden acceder a este panel.</p>
+    <p class="login-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" style="vertical-align:-2px;margin-right:4px">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Acceso restringido al personal autorizado
+    </p>
 
   </div>
 
   <script>
-    // ── Configuración Supabase ─────────────────────────────────────────────
-    // Reemplaza estos valores con los de tu proyecto en app.supabase.com
     const SUPABASE_URL = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dmFqdmhqY3Z6cXNlanJjcXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIxMDUsImV4cCI6MjA5NDc2ODEwNX0.BZeVhHfC7T8X0sAAA9xILGA39Q8iKbZG3SZE2q7HOrw';
 
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ── Redirigir si ya hay sesión activa ──────────────────────────────────
     (async () => {
       const { data: { session } } = await sb.auth.getSession();
       if (session) window.location.href = 'dashboard.html';
     })();
 
-    // ── Toggle mostrar/ocultar contraseña ──────────────────────────────────
     document.getElementById('toggle-pwd').addEventListener('click', () => {
       const input = document.getElementById('password');
       const eyeOpen = document.getElementById('eye-open');
@@ -99,7 +123,6 @@
       eyeClosed.style.display = isHidden ? 'block' : 'none';
     });
 
-    // ── Formulario de login ────────────────────────────────────────────────
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -107,18 +130,20 @@
       const password = document.getElementById('password').value;
       const errorEl = document.getElementById('error-msg');
       const btnText = document.getElementById('btn-text');
+      const btnIcon = document.getElementById('btn-icon');
       const spinner = document.getElementById('btn-spinner');
       const submitBtn = document.getElementById('submit-btn');
 
-      // Estado de carga
       errorEl.style.display = 'none';
       btnText.style.display = 'none';
+      btnIcon.style.display = 'none';
       spinner.style.display = 'inline-block';
       submitBtn.disabled = true;
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
       btnText.style.display = 'inline';
+      btnIcon.style.display = 'inline';
       spinner.style.display = 'none';
       submitBtn.disabled = false;
 
@@ -128,7 +153,6 @@
         return;
       }
 
-      // Login exitoso → dashboard
       window.location.href = 'dashboard.html';
     });
   </script>
