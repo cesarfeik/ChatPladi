@@ -45,7 +45,7 @@
       </div>
       <div>
         <p class="page-banner-label">Bienvenido al</p>
-        <h1 class="page-banner-title">Panel de Administración <span id="banner-email"></span></h1>
+        <h1 class="page-banner-title">Panel de Administración</h1>
       </div>
     </div>
   </div>
@@ -139,29 +139,6 @@
     </div>
   </div>
 
-  <!-- ── Modal de vista previa ─────────────────────────────────────────────── -->
-  <div class="modal-overlay" id="preview-modal" style="display:none">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="2" width="20">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          <h3 class="modal-title" id="modal-title">Vista previa</h3>
-        </div>
-        <button class="modal-close" id="modal-close" aria-label="Cerrar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-meta" id="modal-meta"></div>
-      <div class="modal-body" id="modal-body"></div>
-    </div>
-  </div>
-
   <script>
     const SUPABASE_URL      = 'https://yxvajvhjcvzqsejrcqvc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dmFqdmhqY3Z6cXNlanJjcXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIxMDUsImV4cCI6MjA5NDc2ODEwNX0.BZeVhHfC7T8X0sAAA9xILGA39Q8iKbZG3SZE2q7HOrw';
@@ -177,7 +154,6 @@
       currentSession = session;
       const email = session.user.email;
       document.getElementById('user-email').textContent = email;
-      document.getElementById('banner-email').textContent = email;
       document.getElementById('user-avatar').textContent = email[0].toUpperCase();
       loadLibrary();
     })();
@@ -356,15 +332,6 @@
             <span class="lib-meta">${doc.chunks} fragmentos · ${new Date(doc.uploaded_at).toLocaleDateString('es-MX')}</span>
           </div>
           <div class="lib-row-actions">
-            <button class="lib-preview-btn"
-              data-prefix="${escHtml(doc.safe_prefix)}" data-filename="${escHtml(doc.filename)}"
-              data-chunks="${doc.chunks}" data-date="${doc.uploaded_at}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              Vista previa
-            </button>
             <button class="lib-delete-btn"
               data-id="${doc.id}" data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
@@ -377,10 +344,6 @@
         </div>
       `).join('');
 
-      document.querySelectorAll('.lib-preview-btn').forEach(btn => {
-        btn.addEventListener('click', () =>
-          previewDocument(btn.dataset.prefix, btn.dataset.filename, Number(btn.dataset.chunks), btn.dataset.date));
-      });
       document.querySelectorAll('.lib-delete-btn').forEach(btn => {
         btn.addEventListener('click', () =>
           deleteDocument(btn.dataset.id, btn.dataset.prefix, Number(btn.dataset.chunks)));
@@ -399,49 +362,6 @@
       log('Documento eliminado — ' + (data.deleted || 0) + ' vectores borrados de Pinecone');
       loadLibrary();
     }
-
-    // ── Vista previa ─────────────────────────────────────────────────────────
-    async function previewDocument(safePrefix, filename, chunks, uploadedAt) {
-      const modal = document.getElementById('preview-modal');
-      document.getElementById('modal-title').textContent = filename;
-      document.getElementById('modal-meta').textContent =
-        chunks + ' fragmentos · Subido el ' + new Date(uploadedAt).toLocaleDateString('es-MX');
-      document.getElementById('modal-body').innerHTML =
-        '<p class="modal-loading">Cargando contenido...</p>';
-      modal.style.display = 'flex';
-
-      try {
-        const res = await fetch('/api/get-document-preview.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
-          body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
-        });
-        const data = await res.json();
-
-        if (data.success && data.chunks.length > 0) {
-          document.getElementById('modal-body').innerHTML =
-            data.chunks.map((text, i) => `
-              <div class="chunk-card">
-                <div class="chunk-label">Fragmento ${i + 1} de ${chunks}</div>
-                <div class="chunk-text">${escHtml(text)}</div>
-              </div>`).join('') +
-            (chunks > 3 ? `<p class="chunk-more">... y ${chunks - 3} fragmento${chunks - 3 > 1 ? 's' : ''} adicional${chunks - 3 > 1 ? 'es' : ''} en la base de conocimiento</p>` : '');
-        } else {
-          document.getElementById('modal-body').innerHTML =
-            '<p class="modal-empty">No se pudo obtener el contenido de este documento.</p>';
-        }
-      } catch {
-        document.getElementById('modal-body').innerHTML =
-          '<p class="modal-error">Error al cargar la vista previa.</p>';
-      }
-    }
-
-    document.getElementById('modal-close').addEventListener('click', () => {
-      document.getElementById('preview-modal').style.display = 'none';
-    });
-    document.getElementById('preview-modal').addEventListener('click', e => {
-      if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
-    });
 
     // ── Utilidades ───────────────────────────────────────────────────────────
     function setStatus(index, text, type) {
