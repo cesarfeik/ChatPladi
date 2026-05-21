@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PLADIEX — Demo Chatbot</title>
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="favicon.png?v=2" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f0f7f9;
@@ -15,17 +21,31 @@
       align-items: center;
       justify-content: center;
     }
+
     .card {
       background: #fff;
       border-radius: 16px;
       padding: 48px 40px;
       text-align: center;
-      box-shadow: 0 4px 24px rgba(1,88,122,0.10);
+      box-shadow: 0 4px 24px rgba(1, 88, 122, 0.10);
       max-width: 480px;
       width: 90%;
     }
-    .logo { color: #01587A; font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    p { color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+
+    .logo {
+      color: #01587A;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
     .hint {
       background: #e8f6f9;
       border-left: 4px solid #5CB3C1;
@@ -35,6 +55,7 @@
       font-size: 13px;
       text-align: left;
     }
+
     .admin-link {
       display: inline-block;
       margin-top: 20px;
@@ -42,23 +63,28 @@
       font-size: 13px;
       text-decoration: none;
     }
-    .admin-link:hover { text-decoration: underline; }
+
+    .admin-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <div class="logo">PLADIEX</div>
-    <p>Plataforma de salud digital para México y Latinoamérica.<br>Haz clic en el botón azul de la esquina inferior derecha para hablar con <strong>Alex Ciencia</strong>.</p>
+    <p>Plataforma de salud digital para México y Latinoamérica.<br>Haz clic en el botón azul de la esquina inferior
+      derecha para hablar con <strong>Alex Ciencia</strong>.</p>
     <div class="hint">
-      El widget del chatbot está activo en esta página. Prueba escribir sobre síntomas, citas médicas, la tienda o préstamos.
+      El widget del chatbot está activo en esta página. Prueba escribir sobre síntomas, citas médicas, la tienda o
+      préstamos.
     </div>
     <br>
     <a href="/admin/" class="admin-link">→ Ir al panel de administración</a>
   </div>
 
-  <script
-    src="/chatbot/widget.js"
-    data-api="/api/chat.php">
+  <script src="/chatbot/widget.js" data-api="/api/chat.php">
   </script>
 </body>
+
 </html>
