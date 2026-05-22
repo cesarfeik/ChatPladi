@@ -109,10 +109,11 @@ body {
 
 /* Logo en card header del login */
 .login-header-logo {
-  max-width: 340px;
+  max-width: 200px;
   height: auto;
   display: block;
   margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
 }
 
 /* Fields */
