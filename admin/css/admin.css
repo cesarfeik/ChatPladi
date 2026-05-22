@@ -88,15 +88,17 @@ body {
 /* Card header */
 .login-card-header {
   background: linear-gradient(160deg, #01587A 0%, #01405c 100%);
-  padding: 14px 32px 12px;
+  padding: 28px 32px 20px;
   text-align: center;
 }
 
 
 .login-card-subtitle {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.65);
+  font-size: 13px;
+  color: #5a7a8a;
   letter-spacing: 0.3px;
+  margin: 0 0 20px;
+  text-align: center;
 }
 
 /* Card body */
@@ -112,8 +114,9 @@ body {
   max-width: 200px;
   height: auto;
   display: block;
-  margin: 0 auto 10px;
+  margin: 0 auto 0;
   filter: brightness(0) invert(1);
+  clip-path: inset(0 0 16% 0);
 }
 
 /* Fields */
