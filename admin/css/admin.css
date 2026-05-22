@@ -737,6 +737,198 @@ body {
 .badge-doc  { background: #e8f0fd; color: #2c5fb5; }
 .badge-text { background: #e8fdf0; color: #27ae60; }
 
+/* ─── BIBLIOTECA — CONTROLES ─────────────────────────────────── */
+.lib-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.lib-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 180px;
+}
+
+.lib-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.lib-search-input {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  border: 1.5px solid #d1e9ee;
+  border-radius: 10px;
+  background: #f4f9fb;
+  font-size: 13.5px;
+  font-family: 'Poppins', sans-serif;
+  color: #1a3a47;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lib-search-input:focus {
+  outline: none;
+  border-color: #5CB3C1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(92,179,193,0.15);
+}
+
+.lib-filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+.lib-select {
+  padding: 9px 12px;
+  border: 1.5px solid #d1e9ee;
+  border-radius: 10px;
+  background: #f4f9fb;
+  font-size: 13px;
+  font-family: 'Poppins', sans-serif;
+  color: #1a3a47;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.lib-select:focus { outline: none; border-color: #5CB3C1; }
+
+/* Botón Ver */
+.lib-view-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: 1.5px solid #c3e4ea;
+  color: #01587A;
+  transition: background 0.18s, border-color 0.18s;
+}
+.lib-view-btn:hover { background: #edf8fa; border-color: #5CB3C1; }
+
+/* ─── MODAL VISTA PREVIA ─────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e8f4f6;
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #01587A;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b8fa0;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.modal-close:hover { background: #f0f9fa; color: #01587A; }
+
+.modal-meta {
+  padding: 10px 22px;
+  font-size: 12px;
+  color: #6b8fa0;
+  background: #f7fbfc;
+  border-bottom: 1px solid #e8f4f6;
+}
+
+.modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.preview-text {
+  font-size: 13.5px;
+  color: #2c4a56;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.preview-truncated {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: #9ab5be;
+  font-style: italic;
+}
+
+/* ─── TEXTO DIRECTO ──────────────────────────────────────────── */
+.text-form { display: flex; flex-direction: column; gap: 20px; }
+.text-form-field { display: flex; flex-direction: column; gap: 6px; }
+.text-form-label {
+  font-size: 11.5px; font-weight: 600; color: #4a7a8a;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.text-textarea {
+  width: 100%; padding: 12px 14px; border: 1.5px solid #d1e9ee;
+  border-radius: 10px; background: #f4f9fb; font-size: 14px;
+  font-family: 'Poppins', sans-serif; color: #1a3a47; resize: vertical;
+  min-height: 200px; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box; line-height: 1.6;
+}
+.text-textarea:focus {
+  outline: none; border-color: #5CB3C1; background: #fff;
+  box-shadow: 0 0 0 3px rgba(92,179,193,0.15);
+}
+.text-char-count { font-size: 11px; color: #9ab5be; text-align: right; }
+.text-form-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
 /* ─── TEXTO DIRECTO ──────────────────────────────────────────── */
 .text-form {
   display: flex;

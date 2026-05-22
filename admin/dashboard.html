@@ -51,11 +51,11 @@
     </div>
   </div>
 
-  <!-- ── Layout de dos columnas ────────────────────────────────────────────── -->
+  <!-- ── Layout ────────────────────────────────────────────────────────────── -->
   <div class="page-wrapper">
     <div class="page-layout">
 
-      <!-- Navegación izquierda -->
+      <!-- Nav -->
       <nav class="page-nav-card">
         <button class="nav-item active" data-section="upload">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
@@ -81,14 +81,14 @@
         </button>
       </nav>
 
-      <!-- Contenido principal -->
+      <!-- Main -->
       <main class="page-main-card">
 
-        <!-- Sección: Subir archivo -->
+        <!-- ── Subir archivo ──────────────────────────────────────────────── -->
         <section class="section active" id="section-upload">
           <div class="section-header">
             <h2 class="section-title">Subir documentos</h2>
-            <p class="section-desc">Sube archivos PDF, Word (.docx) o TXT. El texto se extrae automáticamente, se divide en fragmentos y se indexa en Pinecone.</p>
+            <p class="section-desc">Sube archivos PDF, Word (.docx) o TXT. El texto se extrae, divide en fragmentos y se indexa en Pinecone.</p>
           </div>
 
           <div class="drop-zone" id="drop-zone">
@@ -101,7 +101,7 @@
               </svg>
             </div>
             <p class="drop-text">Arrastra tus archivos aquí o <span class="drop-link">selecciona archivos</span></p>
-            <p class="drop-hint">Máximo 10 MB por archivo · PDF, Word (.docx) o TXT</p>
+            <p class="drop-hint">Máximo 10 MB · PDF, Word (.docx) o TXT</p>
             <input type="file" id="file-input" accept=".pdf,.txt,.docx,.doc" multiple style="display:none" />
           </div>
 
@@ -126,22 +126,21 @@
           </div>
         </section>
 
-        <!-- Sección: Texto directo -->
+        <!-- ── Texto directo ──────────────────────────────────────────────── -->
         <section class="section" id="section-text">
           <div class="section-header">
             <h2 class="section-title">Agregar texto directo</h2>
-            <p class="section-desc">Escribe o pega texto para indexarlo en la base de conocimiento. Asigna un nombre para identificarlo en la biblioteca.</p>
+            <p class="section-desc">Escribe o pega texto para indexarlo. Asigna un nombre para identificarlo en la biblioteca.</p>
           </div>
 
           <div class="text-form">
             <div class="text-form-field">
               <label class="text-form-label">Nombre del documento</label>
               <input type="text" id="text-doc-name" class="field-input"
-                placeholder="Ej: Política de precios, FAQ general, Instrucciones de uso..."
-                maxlength="100" />
+                placeholder="Ej: Política de precios, FAQ general..." maxlength="100" />
             </div>
             <div class="text-form-field">
-              <label class="text-form-label">Contenido del texto</label>
+              <label class="text-form-label">Contenido</label>
               <textarea id="text-doc-content" class="text-textarea" rows="12"
                 placeholder="Escribe o pega el texto aquí..."></textarea>
               <span class="text-char-count" id="text-char-count">0 caracteres</span>
@@ -166,12 +165,36 @@
           </div>
         </section>
 
-        <!-- Sección: Biblioteca -->
+        <!-- ── Biblioteca ─────────────────────────────────────────────────── -->
         <section class="section" id="section-library">
           <div class="section-header">
             <h2 class="section-title">Biblioteca de documentos</h2>
-            <p class="section-desc">Documentos ya indexados en la base de conocimiento del chatbot.</p>
+            <p class="section-desc">Documentos indexados en la base de conocimiento del chatbot.</p>
           </div>
+
+          <!-- Controles de búsqueda y filtro -->
+          <div class="lib-controls">
+            <div class="lib-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#8fb5c0" stroke-width="2" width="16" class="lib-search-icon">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="lib-search" class="lib-search-input" placeholder="Buscar por nombre..." />
+            </div>
+            <div class="lib-filter-group">
+              <select id="lib-filter-type" class="lib-select">
+                <option value="">Todos los tipos</option>
+                <option value="pdf">PDF</option>
+                <option value="docx">Word</option>
+                <option value="txt">TXT / Texto</option>
+              </select>
+              <select id="lib-filter-sort" class="lib-select">
+                <option value="newest">Más recientes</option>
+                <option value="oldest">Más antiguos</option>
+                <option value="name">Nombre A–Z</option>
+              </select>
+            </div>
+          </div>
+
           <div class="library-empty" id="library-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="56">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -180,10 +203,38 @@
             <p>Aún no hay documentos indexados.</p>
             <p>Sube un archivo o agrega texto desde el menú izquierdo.</p>
           </div>
+          <div id="lib-no-results" style="display:none" class="library-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="48">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <p>Sin resultados para tu búsqueda.</p>
+          </div>
           <div class="library-list" id="library-grid" style="display:none"></div>
         </section>
 
       </main>
+    </div>
+  </div>
+
+  <!-- ── Modal de vista previa ─────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="preview-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="2" width="18">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <h3 class="modal-title" id="modal-title">Vista previa</h3>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-body" id="modal-body"></div>
     </div>
   </div>
 
@@ -194,6 +245,7 @@
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentSession = null;
+    let allDocs = [];
 
     // ── Sesión ───────────────────────────────────────────────────────────────
     (async () => {
@@ -242,14 +294,13 @@
     }
 
     function isValidFile(f) {
-      const allowed = ['pdf', 'txt', 'docx', 'doc'];
-      return allowed.includes(getExt(f.name)) && f.size <= 10 * 1024 * 1024;
+      return ['pdf','txt','docx','doc'].includes(getExt(f.name)) && f.size <= 10 * 1024 * 1024;
     }
 
-    function fileIcon(ext) {
+    function fileIcon(ext, size = 20) {
       const colors = { pdf: '#e74c3c', txt: '#2980b9', docx: '#2c5fb5', doc: '#2c5fb5' };
-      const color = colors[ext] || '#5CB3C1';
-      return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" width="20">
+      const c = colors[ext] || '#5CB3C1';
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" width="${size}" height="${size}">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
       </svg>`;
@@ -278,7 +329,9 @@
           ${fileIcon(ext)}
           <div class="queue-info">
             <span class="queue-name">${escHtml(file.name)}</span>
-            <span class="queue-size">${(file.size / 1024).toFixed(1)} KB · <span class="doc-type-badge badge-${ext}">${ext.toUpperCase()}</span></span>
+            <span class="queue-size">${(file.size/1024).toFixed(1)} KB &nbsp;
+              <span class="doc-type-badge badge-${ext}">${ext.toUpperCase()}</span>
+            </span>
           </div>
           <span class="queue-status" id="status-${i}">Pendiente</span>
           <button class="queue-remove" data-index="${i}" aria-label="Quitar">
@@ -316,8 +369,8 @@
 
         try {
           const text = await extractText(file);
-          if (!text || text.trim().length === 0) throw new Error('No se pudo extraer texto del archivo');
-          log('Texto extraido: ' + text.length + ' caracteres');
+          if (!text || !text.trim()) throw new Error('No se pudo extraer texto del archivo');
+          log('Texto extraído: ' + text.length + ' caracteres');
           setStatus(i, 'Indexando...', 'processing');
 
           const res = await fetch('/api/process-pdf.php', {
@@ -333,7 +386,7 @@
           if (data.success) {
             setStatus(i, 'Listo — ' + data.chunks + ' fragmentos', 'done');
             log(file.name + ': ' + data.chunks + ' fragmentos guardados');
-            saveToLibrary(file.name, data.safe_prefix, data.chunks);
+            await saveToLibrary(file.name, data.safe_prefix, data.chunks, text);
             processedFiles.add(file);
           } else {
             throw new Error(data.error || 'Error desconocido');
@@ -354,13 +407,13 @@
       }
     }
 
-    // ── Extracción de texto por tipo ─────────────────────────────────────────
+    // ── Extracción de texto ───────────────────────────────────────────────────
     async function extractText(file) {
       const ext = getExt(file.name);
-      if (ext === 'pdf')             return extractPdfText(file);
-      if (ext === 'txt')             return extractTxtText(file);
+      if (ext === 'pdf')              return extractPdfText(file);
+      if (ext === 'txt')              return extractTxtText(file);
       if (ext === 'docx' || ext === 'doc') return extractDocxText(file);
-      throw new Error('Formato no soportado: ' + ext);
+      throw new Error('Formato no soportado');
     }
 
     async function extractPdfText(file) {
@@ -381,7 +434,7 @@
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload  = e => resolve(e.target.result);
-        reader.onerror = () => reject(new Error('Error leyendo el archivo TXT'));
+        reader.onerror = () => reject(new Error('Error leyendo TXT'));
         reader.readAsText(file, 'UTF-8');
       });
     }
@@ -389,8 +442,6 @@
     async function extractDocxText(file) {
       const arrayBuffer = await file.arrayBuffer();
       const result = await mammoth.extractRawText({ arrayBuffer });
-      if (result.messages && result.messages.length)
-        console.warn('Mammoth warnings:', result.messages);
       return result.value;
     }
 
@@ -424,15 +475,12 @@
       const btnText = document.getElementById('text-btn-text');
       const spinner = document.getElementById('text-btn-spinner');
 
-      if (!name)    { alert('Escribe un nombre para el documento.'); return; }
-      if (!content) { alert('El contenido no puede estar vacío.'); return; }
-      if (content.length < 20) { alert('El texto es demasiado corto para indexar.'); return; }
+      if (!name)             { alert('Escribe un nombre para el documento.'); return; }
+      if (!content)          { alert('El contenido no puede estar vacío.'); return; }
+      if (content.length < 20) { alert('El texto es muy corto para indexar.'); return; }
 
       document.getElementById('text-progress-log').style.display = 'block';
-      btn.disabled = true;
-      btnText.style.display = 'none';
-      spinner.style.display = 'inline-block';
-
+      btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
       textLog('Procesando: ' + name);
 
       try {
@@ -445,14 +493,12 @@
           },
           body: JSON.stringify({ filename, text: content }),
         });
-
         const data = await res.json();
         if (data.success) {
-          textLog('"' + name + '" indexado — ' + data.chunks + ' fragmentos guardados');
-          saveToLibrary(filename, data.safe_prefix, data.chunks);
+          textLog('"' + name + '" indexado — ' + data.chunks + ' fragmentos');
+          await saveToLibrary(filename, data.safe_prefix, data.chunks, content);
           document.getElementById('text-doc-name').value = '';
-          textContent.value = '';
-          charCount.textContent = '0 caracteres';
+          textContent.value = ''; charCount.textContent = '0 caracteres';
         } else {
           throw new Error(data.error || 'Error desconocido');
         }
@@ -460,9 +506,7 @@
         textLog('Error: ' + err.message);
       }
 
-      btn.disabled = false;
-      btnText.style.display = 'inline';
-      spinner.style.display = 'none';
+      btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
     }
 
     function textLog(msg) {
@@ -475,41 +519,97 @@
     }
 
     // ── Biblioteca ───────────────────────────────────────────────────────────
-    async function saveToLibrary(filename, safePrefix, chunks) {
-      await sb.from('documents').insert({ filename, safe_prefix: safePrefix, chunks });
+    async function saveToLibrary(filename, safePrefix, chunks, rawText = '') {
+      const preview    = rawText.trim().substring(0, 4000);
+      const uploadedBy = currentSession?.user?.email || '';
+
+      // Intenta con todos los campos; si fallan columnas nuevas, fallback básico
+      let { error } = await sb.from('documents').insert({
+        filename, safe_prefix: safePrefix, chunks,
+        uploaded_by: uploadedBy,
+        content_preview: preview,
+      });
+
+      if (error && error.message?.includes('column')) {
+        ({ error } = await sb.from('documents').insert({ filename, safe_prefix: safePrefix, chunks }));
+      }
+
+      if (error) console.error('Error guardando en biblioteca:', error);
       loadLibrary();
     }
 
     async function loadLibrary() {
-      const grid  = document.getElementById('library-grid');
-      const empty = document.getElementById('library-empty');
       const { data: lib } = await sb.from('documents').select('*').order('uploaded_at', { ascending: false });
+      allDocs = lib || [];
+      renderLibrary();
+    }
 
-      if (!lib || lib.length === 0) {
-        empty.style.display = 'flex'; grid.style.display = 'none'; return;
+    function renderLibrary() {
+      const grid      = document.getElementById('library-grid');
+      const empty     = document.getElementById('library-empty');
+      const noResults = document.getElementById('lib-no-results');
+
+      const search    = (document.getElementById('lib-search')?.value || '').toLowerCase();
+      const typeVal   = document.getElementById('lib-filter-type')?.value || '';
+      const sortVal   = document.getElementById('lib-filter-sort')?.value || 'newest';
+
+      // Filtrar
+      let docs = allDocs.filter(d => {
+        const matchName = d.filename.toLowerCase().includes(search);
+        const ext = getExt(d.filename);
+        const matchType = !typeVal || (typeVal === 'txt' ? (ext === 'txt') : ext === typeVal);
+        return matchName && matchType;
+      });
+
+      // Ordenar
+      if (sortVal === 'oldest') docs.sort((a,b) => new Date(a.uploaded_at) - new Date(b.uploaded_at));
+      else if (sortVal === 'name') docs.sort((a,b) => a.filename.localeCompare(b.filename));
+
+      // Sin documentos en absoluto
+      if (allDocs.length === 0) {
+        empty.style.display = 'flex'; noResults.style.display = 'none'; grid.style.display = 'none'; return;
       }
+      empty.style.display = 'none';
 
-      empty.style.display = 'none'; grid.style.display = 'block';
-      grid.innerHTML = lib.map(doc => {
-        const ext = getExt(doc.filename);
-        const isText = ext === 'txt' && !doc.filename.includes('.');
-        const badgeClass = isText ? 'badge-text' : `badge-${ext}`;
-        const badgeLabel = isText ? 'TEXTO' : ext.toUpperCase();
+      // Sin resultados de búsqueda
+      if (docs.length === 0) {
+        noResults.style.display = 'flex'; grid.style.display = 'none'; return;
+      }
+      noResults.style.display = 'none'; grid.style.display = 'block';
+
+      grid.innerHTML = docs.map(doc => {
+        const ext         = getExt(doc.filename);
+        const badgeClass  = `badge-${ext}`;
+        const uploadedBy  = doc.uploaded_by || '—';
+        const hasPreview  = !!doc.content_preview;
+        const date        = new Date(doc.uploaded_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' });
+
         return `
         <div class="lib-row">
-          <div class="lib-row-icon">
-            ${fileIcon(ext)}
-          </div>
+          <div class="lib-row-icon">${fileIcon(ext, 22)}</div>
           <div class="lib-row-info">
             <span class="lib-name">${escHtml(doc.filename)}</span>
             <span class="lib-meta">
-              <span class="doc-type-badge ${badgeClass}">${badgeLabel}</span>
-              ${doc.chunks} fragmentos · ${new Date(doc.uploaded_at).toLocaleDateString('es-MX')}
+              <span class="doc-type-badge ${badgeClass}">${ext.toUpperCase()}</span>
+              &nbsp;${doc.chunks} fragmentos &nbsp;·&nbsp; ${date}
+              &nbsp;·&nbsp;
+              <svg viewBox="0 0 24 24" fill="none" stroke="#8fb5c0" stroke-width="2" width="11" style="vertical-align:-1px">
+                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+              ${escHtml(uploadedBy)}
             </span>
           </div>
           <div class="lib-row-actions">
-            <button class="lib-delete-btn"
-              data-id="${doc.id}" data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
+            ${hasPreview ? `
+            <button class="lib-view-btn" data-id="${doc.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Ver
+            </button>` : ''}
+            <button class="lib-delete-btn" data-id="${doc.id}"
+              data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -520,16 +620,54 @@
         </div>`;
       }).join('');
 
+      // Ver contenido
+      document.querySelectorAll('.lib-view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const doc = allDocs.find(d => d.id === btn.dataset.id);
+          if (doc) openPreview(doc);
+        });
+      });
+
+      // Eliminar
       document.querySelectorAll('.lib-delete-btn').forEach(btn => {
         btn.addEventListener('click', () =>
           deleteDocument(btn.dataset.id, btn.dataset.prefix, Number(btn.dataset.chunks)));
       });
     }
 
+    // ── Búsqueda y filtros ────────────────────────────────────────────────────
+    document.getElementById('lib-search').addEventListener('input', renderLibrary);
+    document.getElementById('lib-filter-type').addEventListener('change', renderLibrary);
+    document.getElementById('lib-filter-sort').addEventListener('change', renderLibrary);
+
+    // ── Vista previa ──────────────────────────────────────────────────────────
+    function openPreview(doc) {
+      const ext  = getExt(doc.filename);
+      const date = new Date(doc.uploaded_at).toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' });
+      document.getElementById('modal-title').textContent = doc.filename;
+      document.getElementById('modal-meta').innerHTML = `
+        <span class="doc-type-badge badge-${ext}">${ext.toUpperCase()}</span>
+        &nbsp; ${doc.chunks} fragmentos &nbsp;·&nbsp; Subido el ${date}
+        &nbsp;·&nbsp; Por ${escHtml(doc.uploaded_by || '—')}`;
+      document.getElementById('modal-body').innerHTML =
+        `<div class="preview-text">${escHtml(doc.content_preview || '')}</div>
+         ${doc.content_preview?.length >= 4000
+           ? '<p class="preview-truncated">— Vista previa limitada a los primeros 4,000 caracteres —</p>'
+           : ''}`;
+      document.getElementById('preview-modal').style.display = 'flex';
+    }
+
+    document.getElementById('modal-close').addEventListener('click', () => {
+      document.getElementById('preview-modal').style.display = 'none';
+    });
+    document.getElementById('preview-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+    });
+
+    // ── Eliminar ──────────────────────────────────────────────────────────────
     async function deleteDocument(id, safePrefix, chunks) {
       if (!confirm('¿Eliminar este documento de la base de conocimiento?')) return;
       try {
-        // 1. Borrar vectores de Pinecone
         const res = await fetch('/api/delete-document.php', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
@@ -538,7 +676,6 @@
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Error en Pinecone');
 
-        // 2. Borrar registro de Supabase
         const { error } = await sb.from('documents').delete().eq('id', id);
         if (error) throw new Error(error.message);
 
@@ -548,7 +685,7 @@
       }
     }
 
-    // ── Utilidades ───────────────────────────────────────────────────────────
+    // ── Utilidades ────────────────────────────────────────────────────────────
     function setStatus(index, text, type) {
       const el = document.getElementById(`status-${index}`);
       if (el) { el.textContent = text; el.className = `queue-status status-${type}`; }
@@ -568,5 +705,4 @@
     }
   </script>
 </body>
-
 </html>
