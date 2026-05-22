@@ -7,6 +7,7 @@
   <title>PLADIEX Admin — Dashboard</title>
   <link rel="icon" type="image/png" href="../favicon.png?v=2" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/admin.css" />
 </head>
@@ -62,7 +63,14 @@
             <polyline points="17 8 12 3 7 8"/>
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
-          Subir PDF
+          Subir archivo
+        </button>
+        <button class="nav-item" data-section="text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Texto directo
         </button>
         <button class="nav-item" data-section="library">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
@@ -76,11 +84,11 @@
       <!-- Contenido principal -->
       <main class="page-main-card">
 
-        <!-- Sección: Subir PDF -->
+        <!-- Sección: Subir archivo -->
         <section class="section active" id="section-upload">
           <div class="section-header">
-            <h2 class="section-title">Subir documentos PDF</h2>
-            <p class="section-desc">Los PDFs se procesan automáticamente: se extrae el texto, se divide en fragmentos y se indexa en la base de conocimiento del chatbot (Pinecone).</p>
+            <h2 class="section-title">Subir documentos</h2>
+            <p class="section-desc">Sube archivos PDF, Word (.docx) o TXT. El texto se extrae automáticamente, se divide en fragmentos y se indexa en Pinecone.</p>
           </div>
 
           <div class="drop-zone" id="drop-zone">
@@ -92,9 +100,9 @@
                 <line x1="9" y1="15" x2="15" y2="15"/>
               </svg>
             </div>
-            <p class="drop-text">Arrastra tus PDFs aquí o <span class="drop-link">selecciona archivos</span></p>
-            <p class="drop-hint">Máximo 10 MB por archivo · Solo formato PDF</p>
-            <input type="file" id="file-input" accept=".pdf" multiple style="display:none" />
+            <p class="drop-text">Arrastra tus archivos aquí o <span class="drop-link">selecciona archivos</span></p>
+            <p class="drop-hint">Máximo 10 MB por archivo · PDF, Word (.docx) o TXT</p>
+            <input type="file" id="file-input" accept=".pdf,.txt,.docx,.doc" multiple style="display:none" />
           </div>
 
           <div class="file-queue" id="file-queue"></div>
@@ -118,6 +126,46 @@
           </div>
         </section>
 
+        <!-- Sección: Texto directo -->
+        <section class="section" id="section-text">
+          <div class="section-header">
+            <h2 class="section-title">Agregar texto directo</h2>
+            <p class="section-desc">Escribe o pega texto para indexarlo en la base de conocimiento. Asigna un nombre para identificarlo en la biblioteca.</p>
+          </div>
+
+          <div class="text-form">
+            <div class="text-form-field">
+              <label class="text-form-label">Nombre del documento</label>
+              <input type="text" id="text-doc-name" class="field-input"
+                placeholder="Ej: Política de precios, FAQ general, Instrucciones de uso..."
+                maxlength="100" />
+            </div>
+            <div class="text-form-field">
+              <label class="text-form-label">Contenido del texto</label>
+              <textarea id="text-doc-content" class="text-textarea" rows="12"
+                placeholder="Escribe o pega el texto aquí..."></textarea>
+              <span class="text-char-count" id="text-char-count">0 caracteres</span>
+            </div>
+            <div class="text-form-actions">
+              <button class="btn-primary" id="process-text-btn" style="width:auto">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                <span id="text-btn-text">Procesar e indexar</span>
+                <span id="text-btn-spinner" class="spinner" style="display:none"></span>
+              </button>
+              <button class="btn-secondary" id="clear-text-btn">Limpiar</button>
+            </div>
+            <div class="progress-log" id="text-progress-log" style="display:none">
+              <div class="log-header">
+                <span>Registro</span>
+                <button class="log-clear" id="text-log-clear">Limpiar</button>
+              </div>
+              <div class="log-body" id="text-log-body"></div>
+            </div>
+          </div>
+        </section>
+
         <!-- Sección: Biblioteca -->
         <section class="section" id="section-library">
           <div class="section-header">
@@ -130,7 +178,7 @@
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
             </svg>
             <p>Aún no hay documentos indexados.</p>
-            <p>Sube tu primer PDF desde <strong>Subir PDF</strong>.</p>
+            <p>Sube un archivo o agrega texto desde el menú izquierdo.</p>
           </div>
           <div class="library-list" id="library-grid" style="display:none"></div>
         </section>
@@ -189,10 +237,29 @@
     });
     fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
 
+    function getExt(filename) {
+      return filename.split('.').pop().toLowerCase();
+    }
+
+    function isValidFile(f) {
+      const allowed = ['pdf', 'txt', 'docx', 'doc'];
+      return allowed.includes(getExt(f.name)) && f.size <= 10 * 1024 * 1024;
+    }
+
+    function fileIcon(ext) {
+      const colors = { pdf: '#e74c3c', txt: '#2980b9', docx: '#2c5fb5', doc: '#2c5fb5' };
+      const color = colors[ext] || '#5CB3C1';
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" width="20">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>`;
+    }
+
     function handleFiles(files) {
-      const pdfs = files.filter(f => f.type === 'application/pdf' && f.size <= 10 * 1024 * 1024);
-      if (pdfs.length !== files.length) alert('Solo se aceptan archivos PDF de hasta 10 MB.');
-      filesToProcess = [...filesToProcess, ...pdfs];
+      const valid = files.filter(isValidFile);
+      if (valid.length !== files.length)
+        alert('Solo se aceptan archivos PDF, Word (.docx) o TXT de hasta 10 MB.');
+      filesToProcess = [...filesToProcess, ...valid];
       renderQueue();
     }
 
@@ -204,16 +271,14 @@
       actions.style.display = 'flex';
 
       filesToProcess.forEach((file, i) => {
+        const ext  = getExt(file.name);
         const item = document.createElement('div');
         item.className = 'queue-item';
         item.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="2" width="20">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
+          ${fileIcon(ext)}
           <div class="queue-info">
             <span class="queue-name">${escHtml(file.name)}</span>
-            <span class="queue-size">${(file.size / 1024).toFixed(1)} KB</span>
+            <span class="queue-size">${(file.size / 1024).toFixed(1)} KB · <span class="doc-type-badge badge-${ext}">${ext.toUpperCase()}</span></span>
           </div>
           <span class="queue-status" id="status-${i}">Pendiente</span>
           <button class="queue-remove" data-index="${i}" aria-label="Quitar">
@@ -232,7 +297,7 @@
       });
     }
 
-    // ── Procesar ─────────────────────────────────────────────────────────────
+    // ── Procesar archivos ─────────────────────────────────────────────────────
     document.getElementById('process-btn').addEventListener('click', processAll);
     document.getElementById('clear-btn').addEventListener('click', () => { filesToProcess = []; renderQueue(); });
     document.getElementById('log-clear').addEventListener('click', () => { document.getElementById('log-body').innerHTML = ''; });
@@ -250,7 +315,8 @@
         log('Iniciando: ' + file.name);
 
         try {
-          const text = await extractPdfText(file);
+          const text = await extractText(file);
+          if (!text || text.trim().length === 0) throw new Error('No se pudo extraer texto del archivo');
           log('Texto extraido: ' + text.length + ' caracteres');
           setStatus(i, 'Indexando...', 'processing');
 
@@ -288,7 +354,15 @@
       }
     }
 
-    // ── PDF.js ───────────────────────────────────────────────────────────────
+    // ── Extracción de texto por tipo ─────────────────────────────────────────
+    async function extractText(file) {
+      const ext = getExt(file.name);
+      if (ext === 'pdf')             return extractPdfText(file);
+      if (ext === 'txt')             return extractTxtText(file);
+      if (ext === 'docx' || ext === 'doc') return extractDocxText(file);
+      throw new Error('Formato no soportado: ' + ext);
+    }
+
     async function extractPdfText(file) {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -301,6 +375,103 @@
         fullText += content.items.map(i => i.str).join(' ') + '\n';
       }
       return fullText.trim();
+    }
+
+    async function extractTxtText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = e => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Error leyendo el archivo TXT'));
+        reader.readAsText(file, 'UTF-8');
+      });
+    }
+
+    async function extractDocxText(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      if (result.messages && result.messages.length)
+        console.warn('Mammoth warnings:', result.messages);
+      return result.value;
+    }
+
+    // ── Texto directo ─────────────────────────────────────────────────────────
+    const textContent = document.getElementById('text-doc-content');
+    const charCount   = document.getElementById('text-char-count');
+
+    textContent.addEventListener('input', () => {
+      charCount.textContent = textContent.value.length.toLocaleString('es-MX') + ' caracteres';
+    });
+
+    document.getElementById('clear-text-btn').addEventListener('click', () => {
+      document.getElementById('text-doc-name').value = '';
+      textContent.value = '';
+      charCount.textContent = '0 caracteres';
+      document.getElementById('text-progress-log').style.display = 'none';
+      document.getElementById('text-log-body').innerHTML = '';
+    });
+
+    document.getElementById('text-log-clear').addEventListener('click', () => {
+      document.getElementById('text-log-body').innerHTML = '';
+    });
+
+    document.getElementById('process-text-btn').addEventListener('click', processDirectText);
+
+    async function processDirectText() {
+      if (!currentSession) return;
+      const name    = document.getElementById('text-doc-name').value.trim();
+      const content = textContent.value.trim();
+      const btn     = document.getElementById('process-text-btn');
+      const btnText = document.getElementById('text-btn-text');
+      const spinner = document.getElementById('text-btn-spinner');
+
+      if (!name)    { alert('Escribe un nombre para el documento.'); return; }
+      if (!content) { alert('El contenido no puede estar vacío.'); return; }
+      if (content.length < 20) { alert('El texto es demasiado corto para indexar.'); return; }
+
+      document.getElementById('text-progress-log').style.display = 'block';
+      btn.disabled = true;
+      btnText.style.display = 'none';
+      spinner.style.display = 'inline-block';
+
+      textLog('Procesando: ' + name);
+
+      try {
+        const filename = name + '.txt';
+        const res = await fetch('/api/process-pdf.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentSession.access_token}`,
+          },
+          body: JSON.stringify({ filename, text: content }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          textLog('"' + name + '" indexado — ' + data.chunks + ' fragmentos guardados');
+          saveToLibrary(filename, data.safe_prefix, data.chunks);
+          document.getElementById('text-doc-name').value = '';
+          textContent.value = '';
+          charCount.textContent = '0 caracteres';
+        } else {
+          throw new Error(data.error || 'Error desconocido');
+        }
+      } catch (err) {
+        textLog('Error: ' + err.message);
+      }
+
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+    }
+
+    function textLog(msg) {
+      const body = document.getElementById('text-log-body');
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.textContent = `[${new Date().toLocaleTimeString('es-MX')}] ${msg}`;
+      body.appendChild(line);
+      body.scrollTop = body.scrollHeight;
     }
 
     // ── Biblioteca ───────────────────────────────────────────────────────────
@@ -319,17 +490,22 @@
       }
 
       empty.style.display = 'none'; grid.style.display = 'block';
-      grid.innerHTML = lib.map(doc => `
+      grid.innerHTML = lib.map(doc => {
+        const ext = getExt(doc.filename);
+        const isText = ext === 'txt' && !doc.filename.includes('.');
+        const badgeClass = isText ? 'badge-text' : `badge-${ext}`;
+        const badgeLabel = isText ? 'TEXTO' : ext.toUpperCase();
+        return `
         <div class="lib-row">
           <div class="lib-row-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#5CB3C1" stroke-width="1.5" width="22">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
+            ${fileIcon(ext)}
           </div>
           <div class="lib-row-info">
             <span class="lib-name">${escHtml(doc.filename)}</span>
-            <span class="lib-meta">${doc.chunks} fragmentos · ${new Date(doc.uploaded_at).toLocaleDateString('es-MX')}</span>
+            <span class="lib-meta">
+              <span class="doc-type-badge ${badgeClass}">${badgeLabel}</span>
+              ${doc.chunks} fragmentos · ${new Date(doc.uploaded_at).toLocaleDateString('es-MX')}
+            </span>
           </div>
           <div class="lib-row-actions">
             <button class="lib-delete-btn"
@@ -341,8 +517,8 @@
               Eliminar
             </button>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
 
       document.querySelectorAll('.lib-delete-btn').forEach(btn => {
         btn.addEventListener('click', () =>
