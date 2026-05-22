@@ -88,7 +88,7 @@ body {
 /* Card header */
 .login-card-header {
   background: linear-gradient(160deg, #01587A 0%, #01405c 100%);
-  padding: 34px 32px 30px;
+  padding: 22px 32px 18px;
   text-align: center;
 }
 
@@ -112,7 +112,7 @@ body {
   max-width: 200px;
   height: auto;
   display: block;
-  margin: 0 auto 14px;
+  margin: 0 auto 10px;
   filter: brightness(0) invert(1);
 }
 
