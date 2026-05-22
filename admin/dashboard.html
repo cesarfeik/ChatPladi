@@ -528,15 +528,24 @@
 
     async function deleteDocument(id, safePrefix, chunks) {
       if (!confirm('¿Eliminar este documento de la base de conocimiento?')) return;
-      const res = await fetch('/api/delete-document.php', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
-        body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
-      });
-      const data = await res.json();
-      if (!data.success) { alert('Error al eliminar: ' + data.error); return; }
-      log('Documento eliminado — ' + (data.deleted || 0) + ' vectores borrados de Pinecone');
-      loadLibrary();
+      try {
+        // 1. Borrar vectores de Pinecone
+        const res = await fetch('/api/delete-document.php', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
+          body: JSON.stringify({ safe_prefix: safePrefix, chunks }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Error en Pinecone');
+
+        // 2. Borrar registro de Supabase
+        const { error } = await sb.from('documents').delete().eq('id', id);
+        if (error) throw new Error(error.message);
+
+        loadLibrary();
+      } catch (err) {
+        alert('Error al eliminar: ' + err.message);
+      }
     }
 
     // ── Utilidades ───────────────────────────────────────────────────────────
