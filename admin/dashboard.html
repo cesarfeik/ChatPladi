@@ -600,14 +600,13 @@
             </span>
           </div>
           <div class="lib-row-actions">
-            ${hasPreview ? `
             <button class="lib-view-btn" data-id="${doc.id}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
               Ver
-            </button>` : ''}
+            </button>
             <button class="lib-delete-btn" data-id="${doc.id}"
               data-prefix="${escHtml(doc.safe_prefix)}" data-chunks="${doc.chunks}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13">
@@ -649,11 +648,19 @@
         <span class="doc-type-badge badge-${ext}">${ext.toUpperCase()}</span>
         &nbsp; ${doc.chunks} fragmentos &nbsp;·&nbsp; Subido el ${date}
         &nbsp;·&nbsp; Por ${escHtml(doc.uploaded_by || '—')}`;
-      document.getElementById('modal-body').innerHTML =
-        `<div class="preview-text">${escHtml(doc.content_preview || '')}</div>
-         ${doc.content_preview?.length >= 4000
-           ? '<p class="preview-truncated">— Vista previa limitada a los primeros 4,000 caracteres —</p>'
-           : ''}`;
+      document.getElementById('modal-body').innerHTML = doc.content_preview
+        ? `<div class="preview-text">${escHtml(doc.content_preview)}</div>
+           ${doc.content_preview.length >= 4000
+             ? '<p class="preview-truncated">— Vista previa limitada a los primeros 4,000 caracteres —</p>'
+             : ''}`
+        : `<div class="preview-empty">
+             <svg viewBox="0 0 24 24" fill="none" stroke="#99D8DD" stroke-width="1.5" width="40">
+               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+               <polyline points="14 2 14 8 20 8"/>
+             </svg>
+             <p>Este documento fue subido antes de activar la vista previa.</p>
+             <p>Elimínalo y súbelo de nuevo para ver su contenido aquí.</p>
+           </div>`;
       document.getElementById('preview-modal').style.display = 'flex';
     }
 

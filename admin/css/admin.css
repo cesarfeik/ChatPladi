@@ -900,6 +900,19 @@ body {
   word-break: break-word;
 }
 
+.preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: #8fb5c0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .preview-truncated {
   margin-top: 18px;
   text-align: center;
