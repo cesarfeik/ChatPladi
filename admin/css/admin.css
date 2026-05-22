@@ -92,13 +92,6 @@ body {
   text-align: center;
 }
 
-.login-card-header img {
-  max-width: 130px;
-  height: auto;
-  display: block;
-  margin: 0 auto 10px;
-  filter: brightness(0) invert(1);
-}
 
 .login-card-subtitle {
   font-size: 12.5px;
