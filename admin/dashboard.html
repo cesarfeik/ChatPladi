@@ -24,6 +24,12 @@
         <span class="topbar-email" id="user-email">Cargando...</span>
         <span class="topbar-role">Administrador</span>
       </div>
+      <button class="btn-health" id="health-btn" title="Verificar conexión con OpenAI y Pinecone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        Estado APIs
+      </button>
       <button class="btn-logout" id="logout-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -348,6 +354,37 @@
       loadLibrary();
     })();
 
+    // ── Health check ─────────────────────────────────────────────────────────
+    document.getElementById('health-btn').addEventListener('click', async () => {
+      if (!currentSession) { alert('Inicia sesión primero.'); return; }
+      const btn = document.getElementById('health-btn');
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+      try {
+        const res  = await fetch('/api/health.php', {
+          headers: { 'Authorization': `Bearer ${currentSession.access_token}` },
+        });
+        const data = await res.json();
+        const lines = [
+          '── Variables de entorno ──',
+          ...Object.entries(data.env || {}).map(([k, v]) => `${k}: ${v}`),
+          '',
+          '── OpenAI ──',
+          JSON.stringify(data.openai, null, 2),
+          '',
+          '── Pinecone ──',
+          JSON.stringify(data.pinecone, null, 2),
+          '',
+          data.summary || '',
+        ];
+        alert(lines.join('\n'));
+      } catch (e) {
+        alert('Error al llamar a /api/health.php: ' + e.message);
+      }
+      btn.disabled = false;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Estado APIs`;
+    });
+
     // ── Logout ───────────────────────────────────────────────────────────────
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await sb.auth.signOut();
@@ -454,32 +491,38 @@
       </svg>`;
     }
 
+    // Definición de secciones para el picker por archivo
+    const FSEC_DEFS = [
+      { id: 'all',            short: 'Todas',     icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' },
+      { id: 'home',           short: 'Principal', icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+      { id: 'financiamiento', short: 'Financ.',   icon: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>' },
+      { id: 'servicios',      short: 'Servicios', icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>' },
+      { id: 'tienda',         short: 'Tienda',    icon: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>' },
+      { id: 'contacto',       short: 'Contacto',  icon: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.34h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l1.63-1.63a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>' },
+    ];
+
     function handleFiles(files) {
       const valid = files.filter(isValidFile);
       if (valid.length !== files.length)
         alert('Solo se aceptan archivos PDF, Word (.docx) o TXT de hasta 10 MB.');
-      filesToProcess = [...filesToProcess, ...valid];
+      // Cada archivo lleva su propio array de secciones (default: todas)
+      filesToProcess = [...filesToProcess, ...valid.map(f => ({ file: f, sections: ['all'] }))];
       renderQueue();
     }
 
     function renderQueue() {
       const queue   = document.getElementById('file-queue');
       const actions = document.getElementById('upload-actions');
-      const picker  = document.getElementById('upload-section-picker');
       queue.innerHTML = '';
-      if (filesToProcess.length === 0) {
-        actions.style.display = 'none';
-        picker.style.display  = 'none';
-        return;
-      }
+      if (filesToProcess.length === 0) { actions.style.display = 'none'; return; }
       actions.style.display = 'flex';
-      picker.style.display  = 'block';
 
-      filesToProcess.forEach((file, i) => {
+      filesToProcess.forEach((item, i) => {
+        const { file, sections } = item;
         const ext  = getExt(file.name);
-        const item = document.createElement('div');
-        item.className = 'queue-item';
-        item.innerHTML = `
+        const el   = document.createElement('div');
+        el.className = 'queue-item';
+        el.innerHTML = `
           ${fileIcon(ext)}
           <div class="queue-info">
             <span class="queue-name">${escHtml(file.name)}</span>
@@ -492,16 +535,56 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
-          </button>`;
-        queue.appendChild(item);
+          </button>
+          <div class="queue-sec-row">
+            <span class="queue-sec-label">Sección:</span>
+            ${FSEC_DEFS.map(s => `
+              <button class="fsec-btn${sections.includes(s.id) ? ' active' : ''}"
+                      data-fi="${i}" data-sec="${s.id}" title="${s.short}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     width="11" height="11" style="flex-shrink:0">${s.icon}</svg>
+                ${s.short}
+              </button>
+            `).join('')}
+          </div>`;
+        queue.appendChild(el);
       });
 
-      document.querySelectorAll('.queue-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          filesToProcess.splice(Number(btn.dataset.index), 1);
+      // Delegación de eventos para secciones y eliminar
+      queue.addEventListener('click', e => {
+        // — Botón quitar archivo —
+        const rmBtn = e.target.closest('.queue-remove');
+        if (rmBtn) {
+          filesToProcess.splice(Number(rmBtn.dataset.index), 1);
           renderQueue();
+          return;
+        }
+        // — Botón de sección —
+        const secBtn = e.target.closest('.fsec-btn');
+        if (!secBtn) return;
+        const fi  = parseInt(secBtn.dataset.fi);
+        const sec = secBtn.dataset.sec;
+        const fi_item = filesToProcess[fi];
+
+        if (sec === 'all') {
+          fi_item.sections = ['all'];
+        } else {
+          let secs = fi_item.sections.filter(s => s !== 'all');
+          if (secs.includes(sec)) {
+            secs = secs.filter(s => s !== sec);
+            fi_item.sections = secs.length > 0 ? secs : ['all'];
+          } else {
+            secs.push(sec);
+            const allSpecific = FSEC_DEFS.filter(d => d.id !== 'all').map(d => d.id);
+            fi_item.sections = allSpecific.every(s => secs.includes(s)) ? ['all'] : secs;
+          }
+        }
+
+        // Actualizar apariencia sin re-renderizar todo
+        queue.querySelectorAll(`.fsec-btn[data-fi="${fi}"]`).forEach(b => {
+          b.classList.toggle('active', fi_item.sections.includes(b.dataset.sec));
         });
-      });
+      }, { once: false });
     }
 
     // ── Procesar archivos ─────────────────────────────────────────────────────
@@ -517,9 +600,9 @@
       const processedFiles = new Set();
 
       for (let i = 0; i < filesToProcess.length; i++) {
-        const file = filesToProcess[i];
+        const { file, sections } = filesToProcess[i];   // ← secciones propias de cada archivo
         setStatus(i, 'Extrayendo texto...', 'processing');
-        log('Iniciando: ' + file.name);
+        log('Iniciando: ' + file.name + ' [' + sections.join(', ') + ']');
 
         try {
           const text = await extractText(file);
@@ -527,7 +610,6 @@
           log('Texto extraído: ' + text.length + ' caracteres');
           setStatus(i, 'Indexando...', 'processing');
 
-          const sections = getSelectedSections('upload-sec');
           const res = await fetch('/api/process-pdf.php', {
             method: 'POST',
             headers: {
@@ -540,9 +622,9 @@
           const data = await res.json();
           if (data.success) {
             setStatus(i, 'Listo — ' + data.chunks + ' fragmentos', 'done');
-            log(file.name + ': ' + data.chunks + ' fragmentos guardados');
+            log(file.name + ': ' + data.chunks + ' fragmentos guardados en [' + sections.join(', ') + ']');
             await saveToLibrary(file.name, data.safe_prefix, data.chunks, text, sections);
-            processedFiles.add(file);
+            processedFiles.add(filesToProcess[i]);
           } else {
             throw new Error(data.error || 'Error desconocido');
           }
@@ -557,7 +639,7 @@
 
       if (processedFiles.size > 0) {
         await new Promise(r => setTimeout(r, 1500));
-        filesToProcess = filesToProcess.filter(f => !processedFiles.has(f));
+        filesToProcess = filesToProcess.filter(item => !processedFiles.has(item));
         renderQueue();
       }
     }
