@@ -65,24 +65,11 @@ $links = detectNavigationLinks($userMessage);
 $reply = callChatGPT($userMessage, $history, $context, $section);
 
 // ─── 5. Enviar respuesta al cliente ────────────────────────────────────────
-$responseJson = json_encode(['reply' => $reply, 'links' => $links]);
-
-// Cerrar la conexión HTTP para que el navegador reciba la respuesta
-// mientras el servidor continúa indexando la conversación en background.
-header('Content-Length: ' . strlen($responseJson));
-header('Connection: close');
-echo $responseJson;
-
-if (function_exists('fastcgi_finish_request')) {
-    fastcgi_finish_request(); // Vercel / PHP-FPM
-} else {
-    ob_flush();
-    flush();
-}
-
-// ─── 6. Indexar par pregunta+respuesta en Pinecone (background) ────────────
-ignore_user_abort(true);
-indexConversation($userMessage, $reply, $section);
+// Nota: En Vercel serverless PHP, fastcgi_finish_request() no libera la
+// conexión con el browser antes de que el script termine. Por eso la
+// indexación de conversaciones se hace desde el frontend (fire-and-forget)
+// para no bloquear ni agotar el timeout de 10 s de la función serverless.
+echo json_encode(['reply' => $reply, 'links' => $links]);
 
 
 // ═══════════════════════════════════════════════════════════════════════════

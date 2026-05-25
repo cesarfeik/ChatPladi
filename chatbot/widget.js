@@ -277,6 +277,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, history, section: SECTION }),
       });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const data = await res.json();
       removeTyping();
 
@@ -286,9 +289,21 @@
 
       addBotMessage(reply, links);
       history.push({ role: 'assistant', content: reply });
-    } catch {
+
+      // Indexar conversación en Pinecone — fire-and-forget (no bloquea el chat)
+      if (reply.length >= 30) {
+        const indexUrl = API_URL.replace('chat.php', 'index-conversation.php');
+        fetch(indexUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: message, answer: reply, section: SECTION }),
+        }).catch(() => { /* silencioso — no afecta la UX */ });
+      }
+
+    } catch (err) {
       removeTyping();
       addBotMessage('Hubo un problema de conexión. Por favor intenta de nuevo.', []);
+      console.warn('[PLX] Error en chat:', err?.message || err);
     } finally {
       isLoading = false;
       setInputDisabled(false);
