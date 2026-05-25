@@ -550,42 +550,45 @@
         queue.appendChild(el);
       });
 
-      // Delegación de eventos para secciones y eliminar
-      queue.addEventListener('click', e => {
-        // — Botón quitar archivo —
-        const rmBtn = e.target.closest('.queue-remove');
-        if (rmBtn) {
-          filesToProcess.splice(Number(rmBtn.dataset.index), 1);
-          renderQueue();
-          return;
-        }
-        // — Botón de sección —
-        const secBtn = e.target.closest('.fsec-btn');
-        if (!secBtn) return;
-        const fi  = parseInt(secBtn.dataset.fi);
-        const sec = secBtn.dataset.sec;
-        const fi_item = filesToProcess[fi];
-
-        if (sec === 'all') {
-          fi_item.sections = ['all'];
-        } else {
-          let secs = fi_item.sections.filter(s => s !== 'all');
-          if (secs.includes(sec)) {
-            secs = secs.filter(s => s !== sec);
-            fi_item.sections = secs.length > 0 ? secs : ['all'];
-          } else {
-            secs.push(sec);
-            const allSpecific = FSEC_DEFS.filter(d => d.id !== 'all').map(d => d.id);
-            fi_item.sections = allSpecific.every(s => secs.includes(s)) ? ['all'] : secs;
-          }
-        }
-
-        // Actualizar apariencia sin re-renderizar todo
-        queue.querySelectorAll(`.fsec-btn[data-fi="${fi}"]`).forEach(b => {
-          b.classList.toggle('active', fi_item.sections.includes(b.dataset.sec));
-        });
-      }, { once: false });
     }
+
+    // ── Delegación de eventos de la cola (registrada UNA sola vez) ────────────
+    document.getElementById('file-queue').addEventListener('click', e => {
+      // — Botón quitar archivo —
+      const rmBtn = e.target.closest('.queue-remove');
+      if (rmBtn) {
+        filesToProcess.splice(Number(rmBtn.dataset.index), 1);
+        renderQueue();
+        return;
+      }
+      // — Botón de sección —
+      const secBtn = e.target.closest('.fsec-btn');
+      if (!secBtn) return;
+      const fi      = parseInt(secBtn.dataset.fi);
+      const sec     = secBtn.dataset.sec;
+      const fi_item = filesToProcess[fi];
+      if (!fi_item) return;
+
+      if (sec === 'all') {
+        fi_item.sections = ['all'];
+      } else {
+        let secs = fi_item.sections.filter(s => s !== 'all');
+        if (secs.includes(sec)) {
+          secs = secs.filter(s => s !== sec);
+          fi_item.sections = secs.length > 0 ? secs : ['all'];
+        } else {
+          secs.push(sec);
+          const allSpecific = FSEC_DEFS.filter(d => d.id !== 'all').map(d => d.id);
+          fi_item.sections = allSpecific.every(s => secs.includes(s)) ? ['all'] : secs;
+        }
+      }
+
+      // Actualizar apariencia sin re-renderizar todo
+      const queue = document.getElementById('file-queue');
+      queue.querySelectorAll(`.fsec-btn[data-fi="${fi}"]`).forEach(b => {
+        b.classList.toggle('active', fi_item.sections.includes(b.dataset.sec));
+      });
+    });
 
     // ── Procesar archivos ─────────────────────────────────────────────────────
     document.getElementById('process-btn').addEventListener('click', processAll);

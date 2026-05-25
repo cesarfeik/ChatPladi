@@ -353,9 +353,9 @@ body {
 .btn-health {
   padding: 7px 14px;
   background: none;
-  border: 1.5px solid rgba(255,255,255,0.3);
+  border: 1.5px solid #d1e9ee;
   border-radius: 8px;
-  color: rgba(255,255,255,0.85);
+  color: #01587A;
   font-family: 'Poppins', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -365,7 +365,7 @@ body {
   gap: 6px;
   transition: background 0.18s, border-color 0.18s;
 }
-.btn-health:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); }
+.btn-health:hover { background: #f0f9fa; border-color: #5CB3C1; }
 .btn-health:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-logout {
