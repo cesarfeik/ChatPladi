@@ -107,6 +107,42 @@
 
           <div class="file-queue" id="file-queue"></div>
 
+          <!-- Selector de secciones — archivos -->
+          <div class="section-picker" id="upload-section-picker">
+            <label class="section-picker-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" style="vertical-align:-2px;margin-right:4px">
+                <path d="M4 6h16M4 12h16M4 18h7"/>
+              </svg>
+              ¿En qué secciones aplica este documento?
+            </label>
+            <div class="section-picker-grid">
+              <label class="picker-chip picker-chip-all">
+                <input type="checkbox" name="upload-sec" value="all" id="usec-all" checked>
+                <span>⭐ Todas las secciones</span>
+              </label>
+              <label class="picker-chip">
+                <input type="checkbox" name="upload-sec" value="home" id="usec-home">
+                <span>🏠 Página Principal</span>
+              </label>
+              <label class="picker-chip">
+                <input type="checkbox" name="upload-sec" value="financiamiento" id="usec-fin">
+                <span>💳 Financiamiento</span>
+              </label>
+              <label class="picker-chip">
+                <input type="checkbox" name="upload-sec" value="servicios" id="usec-ser">
+                <span>🏥 Servicios</span>
+              </label>
+              <label class="picker-chip">
+                <input type="checkbox" name="upload-sec" value="tienda" id="usec-tie">
+                <span>🛍️ Tienda</span>
+              </label>
+              <label class="picker-chip">
+                <input type="checkbox" name="upload-sec" value="contacto" id="usec-con">
+                <span>📞 Contacto</span>
+              </label>
+            </div>
+          </div>
+
           <div class="upload-actions" id="upload-actions" style="display:none">
             <button class="btn-primary" id="process-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
@@ -145,6 +181,42 @@
                 placeholder="Escribe o pega el texto aquí..."></textarea>
               <span class="text-char-count" id="text-char-count">0 caracteres</span>
             </div>
+            <!-- Selector de secciones — texto directo -->
+            <div class="section-picker">
+              <label class="section-picker-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" style="vertical-align:-2px;margin-right:4px">
+                  <path d="M4 6h16M4 12h16M4 18h7"/>
+                </svg>
+                ¿En qué secciones aplica este documento?
+              </label>
+              <div class="section-picker-grid">
+                <label class="picker-chip picker-chip-all">
+                  <input type="checkbox" name="text-sec" value="all" id="tsec-all" checked>
+                  <span>⭐ Todas las secciones</span>
+                </label>
+                <label class="picker-chip">
+                  <input type="checkbox" name="text-sec" value="home" id="tsec-home">
+                  <span>🏠 Página Principal</span>
+                </label>
+                <label class="picker-chip">
+                  <input type="checkbox" name="text-sec" value="financiamiento" id="tsec-fin">
+                  <span>💳 Financiamiento</span>
+                </label>
+                <label class="picker-chip">
+                  <input type="checkbox" name="text-sec" value="servicios" id="tsec-ser">
+                  <span>🏥 Servicios</span>
+                </label>
+                <label class="picker-chip">
+                  <input type="checkbox" name="text-sec" value="tienda" id="tsec-tie">
+                  <span>🛍️ Tienda</span>
+                </label>
+                <label class="picker-chip">
+                  <input type="checkbox" name="text-sec" value="contacto" id="tsec-con">
+                  <span>📞 Contacto</span>
+                </label>
+              </div>
+            </div>
+
             <div class="text-form-actions">
               <button class="btn-primary" id="process-text-btn" style="width:auto">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16">
@@ -191,6 +263,15 @@
                 <option value="newest">Más recientes</option>
                 <option value="oldest">Más antiguos</option>
                 <option value="name">Nombre A–Z</option>
+              </select>
+              <select id="lib-filter-section" class="lib-select">
+                <option value="">Todas las secciones</option>
+                <option value="all">⭐ Globales</option>
+                <option value="home">🏠 Página Principal</option>
+                <option value="financiamiento">💳 Financiamiento</option>
+                <option value="servicios">🏥 Servicios</option>
+                <option value="tienda">🛍️ Tienda</option>
+                <option value="contacto">📞 Contacto</option>
               </select>
             </div>
           </div>
@@ -274,6 +355,52 @@
         if (btn.dataset.section === 'library') loadLibrary();
       });
     });
+
+    // ── Helpers de secciones ─────────────────────────────────────────────────
+    function getSelectedSections(nameAttr) {
+      const boxes  = [...document.querySelectorAll(`input[name="${nameAttr}"]`)];
+      const allBox = boxes.find(b => b.value === 'all');
+      if (allBox?.checked) return ['all'];
+      const selected = boxes.filter(b => b.value !== 'all' && b.checked).map(b => b.value);
+      return selected.length > 0 ? selected : ['all'];
+    }
+
+    function initSectionPicker(nameAttr) {
+      const boxes    = [...document.querySelectorAll(`input[name="${nameAttr}"]`)];
+      const allBox   = boxes.find(b => b.value === 'all');
+      const specific = boxes.filter(b => b.value !== 'all');
+
+      allBox?.addEventListener('change', () => {
+        if (allBox.checked) specific.forEach(b => b.checked = false);
+      });
+      specific.forEach(b => b.addEventListener('change', () => {
+        if (b.checked && allBox) allBox.checked = false;
+        // Si se marcan todas las específicas, activar "Todas"
+        if (specific.every(s => s.checked)) {
+          specific.forEach(s => s.checked = false);
+          if (allBox) allBox.checked = true;
+        }
+      }));
+    }
+
+    initSectionPicker('upload-sec');
+    initSectionPicker('text-sec');
+
+    const SECTION_LABELS = {
+      all:             '⭐ Todas',
+      home:            '🏠 Principal',
+      financiamiento:  '💳 Financiamiento',
+      servicios:       '🏥 Servicios',
+      tienda:          '🛍️ Tienda',
+      contacto:        '📞 Contacto',
+    };
+
+    function sectionBadgesHtml(sections) {
+      if (!sections || sections.length === 0) return '';
+      return sections.map(s =>
+        `<span class="sec-badge sec-badge-${s}">${SECTION_LABELS[s] || s}</span>`
+      ).join('');
+    }
 
     // ── Drag & drop ──────────────────────────────────────────────────────────
     const dropZone = document.getElementById('drop-zone');
@@ -373,20 +500,21 @@
           log('Texto extraído: ' + text.length + ' caracteres');
           setStatus(i, 'Indexando...', 'processing');
 
+          const sections = getSelectedSections('upload-sec');
           const res = await fetch('/api/process-pdf.php', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${currentSession.access_token}`,
             },
-            body: JSON.stringify({ filename: file.name, text }),
+            body: JSON.stringify({ filename: file.name, text, sections }),
           });
 
           const data = await res.json();
           if (data.success) {
             setStatus(i, 'Listo — ' + data.chunks + ' fragmentos', 'done');
             log(file.name + ': ' + data.chunks + ' fragmentos guardados');
-            await saveToLibrary(file.name, data.safe_prefix, data.chunks, text);
+            await saveToLibrary(file.name, data.safe_prefix, data.chunks, text, sections);
             processedFiles.add(file);
           } else {
             throw new Error(data.error || 'Error desconocido');
@@ -485,18 +613,19 @@
 
       try {
         const filename = name + '.txt';
+        const sections = getSelectedSections('text-sec');
         const res = await fetch('/api/process-pdf.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${currentSession.access_token}`,
           },
-          body: JSON.stringify({ filename, text: content }),
+          body: JSON.stringify({ filename, text: content, sections }),
         });
         const data = await res.json();
         if (data.success) {
           textLog('"' + name + '" indexado — ' + data.chunks + ' fragmentos');
-          await saveToLibrary(filename, data.safe_prefix, data.chunks, content);
+          await saveToLibrary(filename, data.safe_prefix, data.chunks, content, sections);
           document.getElementById('text-doc-name').value = '';
           textContent.value = ''; charCount.textContent = '0 caracteres';
         } else {
@@ -519,17 +648,29 @@
     }
 
     // ── Biblioteca ───────────────────────────────────────────────────────────
-    async function saveToLibrary(filename, safePrefix, chunks, rawText = '') {
+    async function saveToLibrary(filename, safePrefix, chunks, rawText = '', sections = ['all']) {
       const preview    = rawText.trim().substring(0, 4000);
       const uploadedBy = currentSession?.user?.email || '';
+      const sectionsJson = JSON.stringify(sections);
 
-      // Intenta con todos los campos; si fallan columnas nuevas, fallback básico
+      // Intento 1: todos los campos incluido sections
       let { error } = await sb.from('documents').insert({
         filename, safe_prefix: safePrefix, chunks,
         uploaded_by: uploadedBy,
         content_preview: preview,
+        sections: sectionsJson,
       });
 
+      // Intento 2: sin sections (columna puede no existir aún)
+      if (error && error.message?.includes('column')) {
+        ({ error } = await sb.from('documents').insert({
+          filename, safe_prefix: safePrefix, chunks,
+          uploaded_by: uploadedBy,
+          content_preview: preview,
+        }));
+      }
+
+      // Intento 3: fallback mínimo
       if (error && error.message?.includes('column')) {
         ({ error } = await sb.from('documents').insert({ filename, safe_prefix: safePrefix, chunks }));
       }
@@ -549,16 +690,27 @@
       const empty     = document.getElementById('library-empty');
       const noResults = document.getElementById('lib-no-results');
 
-      const search    = (document.getElementById('lib-search')?.value || '').toLowerCase();
-      const typeVal   = document.getElementById('lib-filter-type')?.value || '';
-      const sortVal   = document.getElementById('lib-filter-sort')?.value || 'newest';
+      const search     = (document.getElementById('lib-search')?.value || '').toLowerCase();
+      const typeVal    = document.getElementById('lib-filter-type')?.value    || '';
+      const sortVal    = document.getElementById('lib-filter-sort')?.value    || 'newest';
+      const sectionVal = document.getElementById('lib-filter-section')?.value || '';
 
       // Filtrar
       let docs = allDocs.filter(d => {
         const matchName = d.filename.toLowerCase().includes(search);
         const ext = getExt(d.filename);
         const matchType = !typeVal || (typeVal === 'txt' ? (ext === 'txt') : ext === typeVal);
-        return matchName && matchType;
+
+        // Filtro de sección: parsear JSON de secciones guardado en Supabase
+        let matchSection = true;
+        if (sectionVal) {
+          try {
+            const docSections = d.sections ? JSON.parse(d.sections) : ['all'];
+            matchSection = docSections.includes(sectionVal) || docSections.includes('all');
+          } catch { matchSection = true; }
+        }
+
+        return matchName && matchType && matchSection;
       });
 
       // Ordenar
@@ -584,6 +736,10 @@
         const hasPreview  = !!doc.content_preview;
         const date        = new Date(doc.uploaded_at).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' });
 
+        // Parsear secciones guardadas
+        let docSections = ['all'];
+        try { if (doc.sections) docSections = JSON.parse(doc.sections); } catch {}
+
         return `
         <div class="lib-row">
           <div class="lib-row-icon">${fileIcon(ext, 22)}</div>
@@ -598,6 +754,7 @@
               </svg>
               ${escHtml(uploadedBy)}
             </span>
+            <span class="lib-sections">${sectionBadgesHtml(docSections)}</span>
           </div>
           <div class="lib-row-actions">
             <button class="lib-view-btn" data-id="${doc.id}">
@@ -638,6 +795,7 @@
     document.getElementById('lib-search').addEventListener('input', renderLibrary);
     document.getElementById('lib-filter-type').addEventListener('change', renderLibrary);
     document.getElementById('lib-filter-sort').addEventListener('change', renderLibrary);
+    document.getElementById('lib-filter-section').addEventListener('change', renderLibrary);
 
     // ── Vista previa ──────────────────────────────────────────────────────────
     function openPreview(doc) {

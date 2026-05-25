@@ -1,15 +1,28 @@
--- Ejecuta este SQL en Supabase → SQL Editor
--- Crea la tabla que registra los documentos indexados en Pinecone
+-- ═══════════════════════════════════════════════════════════════════════════
+-- PLADIEX — Supabase Setup
+-- Ejecuta este SQL en: Supabase → SQL Editor
+-- ═══════════════════════════════════════════════════════════════════════════
 
+-- ── 1. Crear tabla de documentos indexados en Pinecone ─────────────────────
 CREATE TABLE IF NOT EXISTS documents (
-  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  filename      TEXT NOT NULL,
-  safe_prefix   TEXT NOT NULL,  -- prefijo usado para los IDs en Pinecone
-  chunks        INTEGER NOT NULL,
-  uploaded_at   TIMESTAMPTZ DEFAULT NOW()
+  id               UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  filename         TEXT        NOT NULL,
+  safe_prefix      TEXT        NOT NULL,   -- prefijo de IDs en Pinecone
+  chunks           INTEGER     NOT NULL,
+  uploaded_by      TEXT,                   -- email del admin que subió el doc
+  content_preview  TEXT,                   -- primeros 4,000 chars del texto
+  sections         TEXT,                   -- JSON array: ["tienda","home"] o ["all"]
+  uploaded_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Política: solo usuarios autenticados pueden leer, insertar y eliminar
+-- ── 2. Migración — agregar columnas si la tabla ya existe ──────────────────
+-- (Seguro de ejecutar en tablas existentes; ignora columnas ya presentes)
+ALTER TABLE documents
+  ADD COLUMN IF NOT EXISTS uploaded_by     TEXT,
+  ADD COLUMN IF NOT EXISTS content_preview TEXT,
+  ADD COLUMN IF NOT EXISTS sections        TEXT;
+
+-- ── 3. RLS: solo usuarios autenticados pueden operar ──────────────────────
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins pueden leer documentos"

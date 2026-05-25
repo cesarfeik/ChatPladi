@@ -37,6 +37,13 @@ if (empty($body['text']) || empty($body['filename'])) {
 $filename = trim($body['filename']);
 $text     = trim($body['text']);
 
+// Secciones del chatbot donde aplica este documento.
+// Si no se envían o está vacío → aplica a todas ("all").
+$rawSections = $body['sections'] ?? [];
+$sections    = (is_array($rawSections) && count($rawSections) > 0)
+    ? array_values(array_unique(array_map('trim', $rawSections)))
+    : ['all'];
+
 if (strlen($text) < 10) {
     jsonError('El texto extraído es demasiado corto o el PDF está vacío');
 }
@@ -69,6 +76,7 @@ foreach ($chunks as $i => $chunk) {
             'filename' => $filename,
             'chunk'    => $i,
             'source'   => 'pdf_upload',
+            'sections' => $sections,   // ej: ["tienda","home"] o ["all"]
         ],
     ];
 }

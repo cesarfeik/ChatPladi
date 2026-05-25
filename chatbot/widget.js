@@ -6,17 +6,57 @@
   'use strict';
 
   const scriptTag = document.currentScript;
-  const API_URL = scriptTag?.dataset?.api || '/api/chat.php';
-  const LOGO_URL = scriptTag?.dataset?.logo || '';
+  const API_URL  = scriptTag?.dataset?.api     || '/api/chat.php';
+  const LOGO_URL = scriptTag?.dataset?.logo    || '';
+  const SECTION  = scriptTag?.dataset?.section || 'default';
 
-  // ── Accesos rápidos con colores por categoría ───────────────────────────
-  const QUICK_OPTIONS = [
-    { label: 'PRE-DIAGNÓSTICO', value: 'Quiero hacer un pre-diagnóstico de mis síntomas', color: '#E05C8A' },
-    { label: 'TIENDA', value: 'Quiero ir a la tienda de PLADIEX', color: '#E7BA11' },
-    { label: 'CITAS', value: 'Quiero agendar o consultar una cita médica', color: '#5CB3C1' },
-    { label: 'PRÉSTAMOS', value: 'Quiero información sobre préstamos o financiamiento', color: '#01587A' },
-    { label: 'PREGUNTAS FRECUENTES', value: '¿Cuáles son las preguntas frecuentes de PLADIEX?', color: '#6b8fa0' },
-  ];
+  // ── Accesos rápidos por sección ─────────────────────────────────────────
+  const QUICK_OPTIONS_BY_SECTION = {
+    default: [
+      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#E05C8A' },
+      { label: 'TIENDA',             value: 'Quiero ir a la tienda de PLADIEX',                     color: '#E7BA11' },
+      { label: 'CITAS',              value: 'Quiero agendar o consultar una cita médica',            color: '#5CB3C1' },
+      { label: 'PRÉSTAMOS',          value: 'Quiero información sobre préstamos o financiamiento',   color: '#01587A' },
+      { label: 'PREGUNTAS FRECUENTES', value: '¿Cuáles son las preguntas frecuentes de PLADIEX?',   color: '#6b8fa0' },
+    ],
+    home: [
+      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#E05C8A' },
+      { label: 'FINANCIAMIENTO',     value: 'Quiero información sobre financiamiento médico',        color: '#E7BA11' },
+      { label: 'TIENDA',             value: 'Quiero ir a la tienda de PLADIEX',                     color: '#5CB3C1' },
+      { label: 'CITAS',              value: 'Quiero agendar una cita médica',                        color: '#01587A' },
+      { label: '¿QUÉ ES PLADIEX?',   value: '¿Qué es PLADIEX y qué servicios ofrece?',              color: '#6b8fa0' },
+    ],
+    financiamiento: [
+      { label: 'SIMULAR PAGO',       value: 'Quiero simular mis pagos mensuales para un crédito médico', color: '#E7BA11' },
+      { label: 'SOLICITAR CRÉDITO',  value: '¿Cómo solicito un crédito médico en PLADIEX?',         color: '#01587A' },
+      { label: 'REQUISITOS',         value: '¿Cuáles son los requisitos para obtener financiamiento?', color: '#5CB3C1' },
+      { label: 'PLAZOS Y TASAS',     value: '¿Cuáles son los plazos y tasas de interés disponibles?', color: '#E05C8A' },
+      { label: 'ELEGIR MÉDICO',      value: '¿Cómo elijo al médico con quien usar mi crédito?',     color: '#6b8fa0' },
+    ],
+    servicios: [
+      { label: 'SOY PACIENTE',       value: '¿Qué servicios tiene PLADIEX para pacientes?',         color: '#5CB3C1' },
+      { label: 'SOY MÉDICO',         value: '¿Qué servicios tiene PLADIEX para médicos?',           color: '#01587A' },
+      { label: 'ASOCIACIÓN',         value: '¿Qué servicios tiene PLADIEX para asociaciones médicas?', color: '#E7BA11' },
+      { label: 'UNIVERSIDAD',        value: '¿Qué servicios tiene PLADIEX para universidades?',     color: '#E05C8A' },
+      { label: 'REGISTRARME',        value: '¿Cómo me registro en PLADIEX?',                        color: '#6b8fa0' },
+    ],
+    tienda: [
+      { label: 'EQUIPOS DX',         value: '¿Qué equipos de diagnóstico médico tienen disponibles?', color: '#5CB3C1' },
+      { label: 'INSTRUMENTAL',       value: '¿Qué instrumental quirúrgico y clínico tienen?',       color: '#01587A' },
+      { label: 'TECNOLOGÍA',         value: '¿Qué tecnología y software médico ofrecen en la tienda?', color: '#E7BA11' },
+      { label: 'ROPA MÉDICA',        value: '¿Qué ropa y accesorios para profesionales de salud tienen?', color: '#E05C8A' },
+      { label: 'FINANCIAR COMPRA',   value: '¿Puedo financiar mi compra en la tienda PLADIEX?',     color: '#6b8fa0' },
+    ],
+    contacto: [
+      { label: 'WHATSAPP',           value: '¿Cuál es el número de WhatsApp de PLADIEX?',           color: '#25D366' },
+      { label: 'HORARIOS',           value: '¿Cuál es el horario de atención de PLADIEX?',          color: '#5CB3C1' },
+      { label: 'AGENDAR REUNIÓN',    value: '¿Cómo puedo agendar una reunión con el equipo de PLADIEX?', color: '#01587A' },
+      { label: 'EMAIL',              value: '¿Cuál es el correo de contacto de PLADIEX?',           color: '#E7BA11' },
+      { label: 'PREGUNTAS FREQ.',    value: '¿Cuáles son las preguntas frecuentes de PLADIEX?',     color: '#6b8fa0' },
+    ],
+  };
+
+  const QUICK_OPTIONS = QUICK_OPTIONS_BY_SECTION[SECTION] || QUICK_OPTIONS_BY_SECTION.default;
 
   // ── Mapa de accesos directos para respuestas del bot ───────────────────
   const NAV_MAP = [
@@ -235,7 +275,7 @@
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history }),
+        body: JSON.stringify({ message, history, section: SECTION }),
       });
       const data = await res.json();
       removeTyping();

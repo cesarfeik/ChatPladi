@@ -1111,3 +1111,76 @@ body {
 .modal-loading { font-size: 13px; color: #6b8fa0; text-align: center; padding: 20px 0; }
 .modal-empty   { font-size: 13px; color: #6b8fa0; text-align: center; padding: 20px 0; }
 .modal-error   { font-size: 13px; color: #ef4444; text-align: center; padding: 20px 0; }
+
+/* ── Selector de secciones ──────────────────────────────────────────────── */
+.section-picker {
+  margin: 18px 0 10px;
+  padding: 16px 18px;
+  background: #f5fbfc;
+  border: 1.5px dashed #b2dde4;
+  border-radius: 12px;
+}
+.section-picker-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5CB3C1;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.section-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.picker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid #d1e9ee;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #3a6a7a;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+.picker-chip:hover { border-color: #5CB3C1; background: #eaf7f9; }
+.picker-chip input[type="checkbox"] {
+  width: 14px; height: 14px;
+  accent-color: #5CB3C1;
+  cursor: pointer;
+}
+.picker-chip:has(input:checked) {
+  border-color: #5CB3C1;
+  background: #e0f5f7;
+  color: #01587A;
+  font-weight: 600;
+}
+.picker-chip-all:has(input:checked) {
+  border-color: #E7BA11;
+  background: #fdf8e1;
+  color: #7a5e00;
+}
+
+/* ── Badges de secciones en la biblioteca ───────────────────────────────── */
+.lib-sections { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.sec-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: .2px;
+}
+.sec-badge-all          { background: #fdf8e1; color: #7a5e00; border: 1px solid #f0d96a; }
+.sec-badge-home         { background: #e8f6f9; color: #01587A; border: 1px solid #b2dde4; }
+.sec-badge-financiamiento { background: #fff5e0; color: #7a5000; border: 1px solid #f5c97a; }
+.sec-badge-servicios    { background: #fce8f0; color: #8a1040; border: 1px solid #f0a0c0; }
+.sec-badge-tienda       { background: #e8f9ee; color: #1a6a40; border: 1px solid #90d4a8; }
+.sec-badge-contacto     { background: #eef0ff; color: #2a3a8a; border: 1px solid #a8b0ee; }
