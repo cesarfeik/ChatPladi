@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLADIEX — Test de Widgets</title>
+  <link rel="icon" type="image/png" href="favicon.png?v=2" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f7f9;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #01587A 0%, #0a7aa8 100%);
+      color: white;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(1,88,122,0.25);
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-sep  { width: 1px; height: 24px; background: rgba(255,255,255,0.3); }
+    .header-sub  { font-size: 13px; opacity: 0.75; }
+    .header-link {
+      font-size: 12px; color: rgba(255,255,255,0.7);
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.25);
+      padding: 5px 12px; border-radius: 8px; transition: all 0.2s;
+    }
+    .header-link:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      background: white;
+      border-bottom: 1.5px solid #e0f0f3;
+      padding: 0 32px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b8fa0;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .tab:hover   { color: #01587A; }
+    .tab.active  { color: #01587A; border-bottom-color: #01587A; }
+    .tab svg     { flex-shrink: 0; }
+
+    /* ── Content ── */
+    .page { padding: 32px; display: flex; gap: 28px; align-items: flex-start; }
+
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 4px 20px rgba(1,88,122,0.08);
+      flex: 1;
+      min-width: 0;
+    }
+    .info-section-name {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #5CB3C1; margin-bottom: 8px;
+    }
+    .info-title {
+      font-size: 22px; font-weight: 700; color: #1a3a47; margin-bottom: 12px;
+    }
+    .info-desc {
+      font-size: 14px; line-height: 1.7; color: #5a7a87; margin-bottom: 22px;
+    }
+    .info-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .info-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      background: #e8f6f9; color: #01587A;
+    }
+    .info-chip svg { flex-shrink: 0; }
+
+    .hint-box {
+      background: #f0f9fb;
+      border-left: 4px solid #5CB3C1;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #3a6a7a;
+      line-height: 1.6;
+    }
+    .hint-box strong { color: #01587A; }
+
+    .test-area {
+      width: 320px;
+      flex-shrink: 0;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(1,88,122,0.08);
+      text-align: center;
+    }
+    .test-area-title {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #8fb5c0; margin-bottom: 16px;
+    }
+    .test-area-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #01587A, #5CB3C1);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .test-area-section { font-size: 16px; font-weight: 700; color: #1a3a47; margin-bottom: 8px; }
+    .test-area-desc    { font-size: 12.5px; color: #6b8fa0; line-height: 1.5; margin-bottom: 20px; }
+    .test-area-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; background: #01587A; color: white;
+      border-radius: 10px; font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .test-area-cta:hover { background: #0a7aa8; }
+    .test-area-note { font-size: 11px; color: #a0b8c0; margin-top: 12px; }
+
+    /* ── Estado de carga ── */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(240,247,249,0.8);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9998;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .loading-overlay.visible { opacity: 1; pointer-events: all; }
+    .loading-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #d1e9ee;
+      border-top-color: #01587A;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-left">
+      <span class="header-logo">PLADIEX</span>
+      <span class="header-sep"></span>
+      <span class="header-sub">Test de Widgets por Sección</span>
+    </div>
+    <a href="/admin/" class="header-link">→ Panel Admin</a>
+  </header>
+
+  <!-- ── Tabs ── -->
+  <nav class="tabs-bar" id="tabs-bar"></nav>
+
+  <!-- ── Contenido ── -->
+  <div class="page" id="page-content"></div>
+
+  <!-- ── Spinner ── -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://chat-pladi.vercel.app';
+
+    // ── Definición de secciones ──────────────────────────────────────────────
+    const SECTIONS = [
+      {
+        id:    'default',
+        name:  'General (Demo)',
+        desc:  'La versión genérica del chatbot que se muestra en la página demo. Accesos rápidos estándar: Pre-diagnóstico, Tienda, Citas, Préstamos, FAQ.',
+        chips: ['Pre-diagnóstico', 'Tienda', 'Citas', 'Préstamos', 'FAQ'],
+        hint:  'Este es el chatbot base. Usa el system prompt genérico sin especialización de sección.',
+        icon:  '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+      },
+      {
+        id:    'home',
+        name:  'Página Principal',
+        desc:  'Alex conoce el ecosistema PLADIEX completo y guía al usuario hacia la sección correcta según su necesidad.',
+        chips: ['¿Qué es PLADIEX?', 'Financiamiento', 'Tienda', 'Citas', 'Pre-diagnóstico'],
+        hint:  '<strong>Prueba preguntar:</strong> "¿Qué es PLADIEX?", "¿Cuántos médicos tienen?", "¿Cómo me registro?"',
+        icon:  '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+      },
+      {
+        id:    'financiamiento',
+        name:  'Financiamiento',
+        desc:  'Experto en crédito médico: segmentos A/B/C/D, tasas de interés, plazos, montos y proceso de solicitud.',
+        chips: ['Simular pago', 'Solicitar crédito', 'Requisitos', 'Plazos y tasas', 'Elegir médico'],
+        hint:  '<strong>Prueba preguntar:</strong> "¿Cuáles son las tasas?", "Quiero un crédito de $80,000", "¿Cuánto pago al mes?"',
+        icon:  '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+      },
+      {
+        id:    'servicios',
+        name:  'Servicios',
+        desc:  'Experto en la propuesta de valor para cada tipo de usuario: pacientes, médicos, asociaciones y universidades.',
+        chips: ['Soy paciente', 'Soy médico', 'Asociación', 'Universidad', 'Registrarme'],
+        hint:  '<strong>Prueba preguntar:</strong> "¿Qué tiene PLADIEX para médicos?", "¿Cómo obtengo mi expediente digital?"',
+        icon:  '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
+      },
+      {
+        id:    'tienda',
+        name:  'Tienda PLADIEX Mall',
+        desc:  'Experto en el marketplace médico: categorías de productos, qué hay disponible y cómo financiar una compra.',
+        chips: ['Equipos diagnósticos', 'Instrumental', 'Tecnología', 'Ropa médica', 'Financiar compra'],
+        hint:  '<strong>Prueba preguntar:</strong> "¿Tienen estetoscopios?", "¿Qué software médico venden?", "¿Puedo pagar a meses?"',
+        icon:  '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+      },
+      {
+        id:    'contacto',
+        name:  'Contacto',
+        desc:  'Experto en canales de atención: WhatsApp, email, teléfono, horarios y cómo agendar una reunión.',
+        chips: ['WhatsApp', 'Horarios', 'Agendar reunión', 'Email', 'FAQ'],
+        hint:  '<strong>Prueba preguntar:</strong> "¿Cuál es su WhatsApp?", "¿En qué horario atienden?", "Quiero hablar con alguien"',
+        icon:  '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.34h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l1.63-1.63a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+      },
+    ];
+
+    let currentSection = null;
+
+    // ── Renderizar tabs ──────────────────────────────────────────────────────
+    function renderTabs() {
+      const bar = document.getElementById('tabs-bar');
+      bar.innerHTML = SECTIONS.map(s => `
+        <button class="tab ${s.id === 'default' ? 'active' : ''}" data-id="${s.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">${s.icon}</svg>
+          ${s.name}
+        </button>
+      `).join('');
+
+      bar.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => loadSection(btn.dataset.id));
+      });
+    }
+
+    // ── Renderizar contenido ─────────────────────────────────────────────────
+    function renderContent(sec) {
+      document.getElementById('page-content').innerHTML = `
+        <div class="info-card">
+          <div class="info-section-name">Sección activa</div>
+          <div class="info-title">${sec.name}</div>
+          <div class="info-desc">${sec.desc}</div>
+          <div class="info-chips">
+            ${sec.chips.map(c => `
+              <span class="info-chip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                ${c}
+              </span>
+            `).join('')}
+          </div>
+          <div class="hint-box">${sec.hint}</div>
+        </div>
+
+        <div class="test-area">
+          <div class="test-area-title">Widget activo</div>
+          <div class="test-area-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="30" height="30">${sec.icon}</svg>
+          </div>
+          <div class="test-area-section">${sec.name}</div>
+          <div class="test-area-desc">data-section="${sec.id}"</div>
+          <button class="test-area-cta" onclick="openWidget()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Abrir chatbot
+          </button>
+          <div class="test-area-note">O haz clic en el botón azul<br>de la esquina inferior derecha</div>
+        </div>
+      `;
+    }
+
+    // ── Cargar sección ───────────────────────────────────────────────────────
+    function loadSection(sectionId) {
+      if (currentSection === sectionId) return;
+      currentSection = sectionId;
+
+      // Marcar tab activo
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.id === sectionId);
+      });
+
+      // Mostrar spinner brevemente
+      const overlay = document.getElementById('loading-overlay');
+      overlay.classList.add('visible');
+
+      // Limpiar widget anterior
+      document.getElementById('plx-chat-btn')?.remove();
+      document.getElementById('plx-chat-panel')?.remove();
+      document.getElementById('plx-widget-script')?.remove();
+
+      // Actualizar contenido
+      const sec = SECTIONS.find(s => s.id === sectionId);
+      renderContent(sec);
+
+      // Insertar nuevo widget
+      setTimeout(() => {
+        const script = document.createElement('script');
+        script.id            = 'plx-widget-script';
+        script.src           = `${API_BASE}/chatbot/widget.js`;
+        script.dataset.api   = `${API_BASE}/api/chat.php`;
+        script.dataset.section = sectionId;
+        document.body.appendChild(script);
+
+        overlay.classList.remove('visible');
+      }, 250);
+    }
+
+    // ── Abrir el widget programáticamente ───────────────────────────────────
+    function openWidget() {
+      document.getElementById('plx-chat-btn')?.click();
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    renderTabs();
+    loadSection('default');
+  </script>
+
+</body>
+</html>
