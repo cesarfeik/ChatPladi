@@ -27,8 +27,8 @@ define('SUPABASE_JWT_SECRET', env('SUPABASE_JWT_SECRET'));
 
 // ── RAG ─────────────────────────────────────────────────────────────────────
 define('RAG_TOP_K',        (int) env('RAG_TOP_K',        '5'));
-define('RAG_CHUNK_SIZE',   (int) env('RAG_CHUNK_SIZE',   '500'));
-define('RAG_CHUNK_OVERLAP',(int) env('RAG_CHUNK_OVERLAP','50'));
+define('RAG_CHUNK_SIZE',   (int) env('RAG_CHUNK_SIZE',   '1200'));
+define('RAG_CHUNK_OVERLAP',(int) env('RAG_CHUNK_OVERLAP','150'));
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
 define('ALLOWED_ORIGIN', env('ALLOWED_ORIGIN', '*'));
