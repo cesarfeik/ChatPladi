@@ -10,7 +10,7 @@
   const LOGO_URL    = scriptTag?.dataset?.logo    || '';
   const SECTION     = scriptTag?.dataset?.section || 'default';
   const WIDGET_BASE = scriptTag ? scriptTag.src.replace(/\/chatbot\/widget\.js(\?.*)?$/, '') : '';
-  const ICON_URL    = WIDGET_BASE + '/img/logo-blanco.png';
+  const ICON_URL    = WIDGET_BASE + '/favicon.png';
 
   // ── Accesos rápidos por sección ─────────────────────────────────────────
   const QUICK_OPTIONS_BY_SECTION = {
