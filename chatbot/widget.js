@@ -6,9 +6,11 @@
   'use strict';
 
   const scriptTag = document.currentScript;
-  const API_URL  = scriptTag?.dataset?.api     || '/api/chat.php';
-  const LOGO_URL = scriptTag?.dataset?.logo    || '';
-  const SECTION  = scriptTag?.dataset?.section || 'default';
+  const API_URL     = scriptTag?.dataset?.api     || '/api/chat.php';
+  const LOGO_URL    = scriptTag?.dataset?.logo    || '';
+  const SECTION     = scriptTag?.dataset?.section || 'default';
+  const WIDGET_BASE = scriptTag ? scriptTag.src.replace(/\/chatbot\/widget\.js(\?.*)?$/, '') : '';
+  const ICON_URL    = WIDGET_BASE + '/img/logo-blanco.png';
 
   // ── Accesos rápidos por sección ─────────────────────────────────────────
   const QUICK_OPTIONS_BY_SECTION = {
@@ -109,9 +111,7 @@
     btn.className = 'plx-chat-btn';
     btn.setAttribute('aria-label', 'Abrir asistente PLADIEX');
     btn.innerHTML = `
-      <svg class="plx-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
+      <img src="${ICON_URL}" class="plx-icon-chat" alt="PLADIEX" />
       <svg class="plx-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
@@ -128,7 +128,7 @@
         <div class="plx-header-left">
           ${LOGO_URL
         ? `<img src="${LOGO_URL}" class="plx-header-logo" alt="PLADIEX" />`
-        : `<div class="plx-avatar">A</div>`
+        : `<div class="plx-avatar"><img src="${ICON_URL}" class="plx-icon-white" alt="" /></div>`
       }
           <div>
             <div class="plx-header-name">Alex Ciencia</div>
@@ -350,7 +350,7 @@
 
     div.innerHTML = `
       <div class="plx-bot-row">
-        <div class="plx-bot-icon">A</div>
+        <div class="plx-bot-icon"><img src="${ICON_URL}" class="plx-icon-white" alt="" /></div>
         <div class="plx-bot-content">
           <div class="plx-bubble plx-bubble-bot">${formatText(text)}</div>
           ${linksHtml}
@@ -367,7 +367,7 @@
     div.className = 'plx-msg plx-msg-bot';
     div.innerHTML = `
       <div class="plx-bot-row">
-        <div class="plx-bot-icon">A</div>
+        <div class="plx-bot-icon"><img src="${ICON_URL}" class="plx-icon-white" alt="" /></div>
         <span class="plx-bubble plx-bubble-bot plx-typing">
           <span></span><span></span><span></span>
         </span>
