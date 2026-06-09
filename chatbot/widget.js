@@ -15,14 +15,14 @@
   // ── Accesos rápidos por sección ─────────────────────────────────────────
   const QUICK_OPTIONS_BY_SECTION = {
     default: [
-      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#E05C8A' },
+      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#3C9E6A' },
       { label: 'TIENDA',             value: 'Quiero ir a la tienda de PLADIEX',                     color: '#E7BA11' },
       { label: 'CITAS',              value: 'Quiero agendar o consultar una cita médica',            color: '#5CB3C1' },
       { label: 'PRÉSTAMOS',          value: 'Quiero información sobre préstamos o financiamiento',   color: '#01587A' },
       { label: 'PREGUNTAS FRECUENTES', value: '¿Cuáles son las preguntas frecuentes de PLADIEX?',   color: '#6b8fa0' },
     ],
     home: [
-      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#E05C8A' },
+      { label: 'PRE-DIAGNÓSTICO',    value: 'Quiero hacer un pre-diagnóstico de mis síntomas',      color: '#3C9E6A' },
       { label: 'FINANCIAMIENTO',     value: 'Quiero información sobre financiamiento médico',        color: '#E7BA11' },
       { label: 'TIENDA',             value: 'Quiero ir a la tienda de PLADIEX',                     color: '#5CB3C1' },
       { label: 'CITAS',              value: 'Quiero agendar una cita médica',                        color: '#01587A' },
@@ -32,21 +32,21 @@
       { label: 'SIMULAR PAGO',       value: 'Quiero simular mis pagos mensuales para un crédito médico', color: '#E7BA11' },
       { label: 'SOLICITAR CRÉDITO',  value: '¿Cómo solicito un crédito médico en PLADIEX?',         color: '#01587A' },
       { label: 'REQUISITOS',         value: '¿Cuáles son los requisitos para obtener financiamiento?', color: '#5CB3C1' },
-      { label: 'PLAZOS Y TASAS',     value: '¿Cuáles son los plazos y tasas de interés disponibles?', color: '#E05C8A' },
+      { label: 'PLAZOS Y TASAS',     value: '¿Cuáles son los plazos y tasas de interés disponibles?', color: '#3C9E6A' },
       { label: 'ELEGIR MÉDICO',      value: '¿Cómo elijo al médico con quien usar mi crédito?',     color: '#6b8fa0' },
     ],
     servicios: [
       { label: 'SOY PACIENTE',       value: '¿Qué servicios tiene PLADIEX para pacientes?',         color: '#5CB3C1' },
       { label: 'SOY MÉDICO',         value: '¿Qué servicios tiene PLADIEX para médicos?',           color: '#01587A' },
       { label: 'ASOCIACIÓN',         value: '¿Qué servicios tiene PLADIEX para asociaciones médicas?', color: '#E7BA11' },
-      { label: 'UNIVERSIDAD',        value: '¿Qué servicios tiene PLADIEX para universidades?',     color: '#E05C8A' },
+      { label: 'UNIVERSIDAD',        value: '¿Qué servicios tiene PLADIEX para universidades?',     color: '#3C9E6A' },
       { label: 'REGISTRARME',        value: '¿Cómo me registro en PLADIEX?',                        color: '#6b8fa0' },
     ],
     tienda: [
       { label: 'EQUIPOS DX',         value: '¿Qué equipos de diagnóstico médico tienen disponibles?', color: '#5CB3C1' },
       { label: 'INSTRUMENTAL',       value: '¿Qué instrumental quirúrgico y clínico tienen?',       color: '#01587A' },
       { label: 'TECNOLOGÍA',         value: '¿Qué tecnología y software médico ofrecen en la tienda?', color: '#E7BA11' },
-      { label: 'ROPA MÉDICA',        value: '¿Qué ropa y accesorios para profesionales de salud tienen?', color: '#E05C8A' },
+      { label: 'ROPA MÉDICA',        value: '¿Qué ropa y accesorios para profesionales de salud tienen?', color: '#3C9E6A' },
       { label: 'FINANCIAR COMPRA',   value: '¿Puedo financiar mi compra en la tienda PLADIEX?',     color: '#6b8fa0' },
     ],
     contacto: [
